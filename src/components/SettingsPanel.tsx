@@ -17,6 +17,8 @@ export default function SettingsPanel({
   onToggle,
 }: SettingsPanelProps) {
   const [activeTab, setActiveTab] = useState<TabType>("general");
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   const updateSetting = <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => {
     onChange({
@@ -29,6 +31,46 @@ export default function SettingsPanel({
     const newColors = [...settings.colors] as [string, string, string, string];
     newColors[index] = newColor;
     updateSetting("colors", newColors);
+  };
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", index.toString());
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedIndex !== null && draggedIndex !== index) {
+      setDragOverIndex(index);
+    }
+  };
+
+  const handleDragLeave = (index: number) => {
+    if (dragOverIndex === index) {
+      setDragOverIndex(null);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    const sourceIndexStr = e.dataTransfer.getData("text/plain");
+    const sourceIndex = sourceIndexStr ? parseInt(sourceIndexStr, 10) : draggedIndex;
+    
+    if (sourceIndex !== null && sourceIndex !== targetIndex && sourceIndex !== undefined) {
+      const newColors = [...settings.colors] as [string, string, string, string];
+      const temp = newColors[sourceIndex];
+      newColors[sourceIndex] = newColors[targetIndex];
+      newColors[targetIndex] = temp;
+      updateSetting("colors", newColors);
+    }
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
   };
 
   const applyPreset = (presetKey: string) => {
@@ -344,7 +386,18 @@ export default function SettingsPanel({
               </span>
               <div className="control-color-grid">
                 {settings.colors.map((color, index) => (
-                  <div key={index} className="color-picker-wrapper">
+                  <div
+                    key={index}
+                    className={`color-picker-wrapper ${
+                      draggedIndex === index ? "dragging" : ""
+                    } ${dragOverIndex === index ? "drag-over" : ""}`}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, index)}
+                    onDragOver={(e) => handleDragOver(e, index)}
+                    onDragLeave={() => handleDragLeave(index)}
+                    onDrop={(e) => handleDrop(e, index)}
+                    onDragEnd={handleDragEnd}
+                  >
                     <div
                       className="color-circle"
                       style={{ backgroundColor: color }}
