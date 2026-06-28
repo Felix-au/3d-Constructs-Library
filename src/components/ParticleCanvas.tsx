@@ -2,9 +2,9 @@
 
 import { useEffect, useRef } from "react";
 import rawParticles from "../data/particles.json";
+import { type AppSettings } from "../types";
 
 const PARTICLE_COUNT = 7000;
-const colors = ["#ffb829", "#15846e", "#8052ff", "#ffffff"]; // Sorted from bottom to top
 const shapes = ["circle", "triangle", "diamond", "square"] as const;
 
 type Shape = (typeof shapes)[number];
@@ -15,13 +15,17 @@ interface ParticleData {
   vx: number;
   vy: number;
   size: number;
-  color: string;
+  colorIndex: number;
   shape: Shape;
   opacity: number;
   springFactor: number;
   damping: number;
   driftOffset: number;
-  scaleFactor: number; // Computed dynamically based on depth
+  scaleFactor: number;
+}
+
+interface ParticleCanvasProps {
+  settings: AppSettings;
 }
 
 function randomRange(min: number, max: number) {
@@ -32,8 +36,14 @@ function lerp(start: number, end: number, t: number) {
   return start * (1 - t) + end * t;
 }
 
-export default function ParticleCanvas() {
+export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const settingsRef = useRef<AppSettings>(settings);
+
+  // Sync settings updates to ref without re-triggering main useEffect hook
+  useEffect(() => {
+    settingsRef.current = settings;
+  }, [settings]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -46,7 +56,7 @@ export default function ParticleCanvas() {
     canvas.width = W;
     canvas.height = H;
 
-    const mouse = { x: -1000, y: -1000, active: false, radius: 100 };
+    const mouse = { x: -1000, y: -1000, active: false };
     let mouseInfluenceX = 0;
     let mouseInfluenceY = 0;
     let mouseVx = 0;
@@ -59,12 +69,58 @@ export default function ParticleCanvas() {
     let hasGyro = false;
 
     // ─── 3D Coordinates Setup ──────────────────────────────────────────────
-    // Extract the coordinates for the four 3D shapes from the JSON.
     const sortedBrain = [...rawParticles.brain].slice(0, PARTICLE_COUNT);
     const sortedLightbulb = [...rawParticles.lightbulb].slice(0, PARTICLE_COUNT);
     const sortedSphere = [...rawParticles.sphere].slice(0, PARTICLE_COUNT);
 
-    // Generate random 3D points for Scattered state
+    // 1. Programmatic 3D Cube Generator (hollow, with slight organic noise)
+    const sortedCube: { x: number; y: number; z: number }[] = [];
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const face = i % 6;
+      let x = randomRange(-1.0, 1.0);
+      let y = randomRange(-1.0, 1.0);
+      let z = randomRange(-1.0, 1.0);
+      if (face === 0) x = -1.0;
+      else if (face === 1) x = 1.0;
+      else if (face === 2) y = -1.0;
+      else if (face === 3) y = 1.0;
+      else if (face === 4) z = -1.0;
+      else if (face === 5) z = 1.0;
+
+      // Add noise
+      const noise = 0.03;
+      x += randomRange(-noise, noise);
+      y += randomRange(-noise, noise);
+      z += randomRange(-noise, noise);
+
+      sortedCube.push({
+        x: x * 0.55,
+        y: y * 0.55,
+        z: z * 0.55,
+      });
+    }
+
+    // 2. Programmatic 3D Torus Generator (with slight organic noise)
+    const sortedTorus: { x: number; y: number; z: number }[] = [];
+    const R_torus = 1.0;
+    const r_torus = 0.35;
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.random() * Math.PI * 2;
+      let x = (R_torus + r_torus * Math.cos(phi)) * Math.cos(theta);
+      let y = (R_torus + r_torus * Math.cos(phi)) * Math.sin(theta);
+      let z = r_torus * Math.sin(phi);
+
+      // Add noise
+      const noise = 0.02;
+      x += randomRange(-noise, noise);
+      y += randomRange(-noise, noise);
+      z += randomRange(-noise, noise);
+
+      sortedTorus.push({ x, y: y * 0.95, z });
+    }
+
+    // 3. Programmatic Scattered Generator
     const sortedScattered: { x: number; y: number; z: number }[] = [];
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       sortedScattered.push({
@@ -74,10 +130,11 @@ export default function ParticleCanvas() {
       });
     }
 
-    // Sort all shapes by Y ascending (bottom-to-top in 3D space)
-    // This aligns the vertical color bands across all morph transitions.
+    // Sort coordinates by Y (bottom-to-top) so colors blend beautifully
     sortedBrain.sort((a, b) => a.y - b.y);
     sortedLightbulb.sort((a, b) => a.y - b.y);
+    sortedCube.sort((a, b) => a.y - b.y);
+    sortedTorus.sort((a, b) => a.y - b.y);
     sortedSphere.sort((a, b) => a.y - b.y);
     sortedScattered.sort((a, b) => a.y - b.y);
 
@@ -90,7 +147,7 @@ export default function ParticleCanvas() {
         vx: 0,
         vy: 0,
         size: randomRange(1.8, 4.2),
-        color: colors[Math.floor(Math.random() * colors.length)],
+        colorIndex: Math.floor(Math.random() * 4),
         shape: shapes[Math.floor(Math.random() * shapes.length)],
         opacity: randomRange(0.2, 0.95),
         springFactor: randomRange(0.015, 0.04),
@@ -100,42 +157,13 @@ export default function ParticleCanvas() {
       });
     }
 
-    // Sort particles so their colors match the sorted 3D coordinates
-    const colorOrder = ["#ffb829", "#15846e", "#8052ff", "#ffffff"];
-    particles.sort((a, b) => colorOrder.indexOf(a.color) - colorOrder.indexOf(b.color));
+    // Sort particles by color group index to align with depth bands
+    particles.sort((a, b) => a.colorIndex - b.colorIndex);
 
-    // Pre-render shaded sphere sprites for each color to maximize performance
+    // Sprite Cache (recreated dynamically when settings.colors change)
     const sprites: { [color: string]: HTMLCanvasElement } = {};
     const spriteSize = 32;
-
-    colors.forEach((color) => {
-      const offscreen = document.createElement("canvas");
-      offscreen.width = spriteSize;
-      offscreen.height = spriteSize;
-      const octx = offscreen.getContext("2d");
-      if (octx) {
-        const r = spriteSize / 2;
-        // Radial gradient with highlight offset to top-left
-        const grad = octx.createRadialGradient(
-          r - r * 0.3,
-          r - r * 0.3,
-          r * 0.1,
-          r,
-          r,
-          r
-        );
-        grad.addColorStop(0, "#ffffff"); // Highlight spot
-        grad.addColorStop(0.15, color);  // Main color
-        grad.addColorStop(0.95, color);  // Edge color
-        grad.addColorStop(1.0, "rgba(0, 0, 0, 0)"); // Alpha falloff at edge
-
-        octx.fillStyle = grad;
-        octx.beginPath();
-        octx.arc(r, r, r, 0, Math.PI * 2);
-        octx.fill();
-      }
-      sprites[color] = offscreen;
-    });
+    let activeColors = ["", "", "", ""];
 
     const startTime = Date.now();
     let animId: number;
@@ -149,16 +177,107 @@ export default function ParticleCanvas() {
       const scrollRatio = scrollHeight > 0 ? scrollTop / scrollHeight : 0;
 
       const isMobile = W < 768;
-      const brainCenter = {
-        x: isMobile ? W * 0.5 : W * 0.72,
-        y: isMobile ? H * 0.35 : H * 0.5,
-      };
-      const sporeCenter = { x: W * 0.5, y: isMobile ? H * 0.3 : H * 0.5 };
+
+      // Real-time configurations from ref
+      const currentCount = Math.min(particles.length, settingsRef.current.particleCount);
+      const currentColors = settingsRef.current.colors;
+      const stiffnessMultiplier = settingsRef.current.springStiffness / 0.03;
+      const dampingMultiplier = settingsRef.current.damping / 0.90;
+      const sizeMultiplier = settingsRef.current.particleSize / 3.0;
+
+      // ─── Sprite Cache Sync ────────────────────────────────────────────────
+      let colorsChanged = false;
+      for (let c = 0; c < 4; c++) {
+        if (currentColors[c] !== activeColors[c]) {
+          colorsChanged = true;
+          break;
+        }
+      }
+
+      if (colorsChanged) {
+        activeColors = [...currentColors];
+        currentColors.forEach((color) => {
+          const offscreen = sprites[color] || document.createElement("canvas");
+          offscreen.width = spriteSize;
+          offscreen.height = spriteSize;
+          const octx = offscreen.getContext("2d");
+          if (octx) {
+            octx.clearRect(0, 0, spriteSize, spriteSize);
+            const r = spriteSize / 2;
+            const grad = octx.createRadialGradient(
+              r - r * 0.3,
+              r - r * 0.3,
+              r * 0.1,
+              r,
+              r,
+              r
+            );
+            grad.addColorStop(0, "#ffffff");
+            grad.addColorStop(0.15, color);
+            grad.addColorStop(0.95, color);
+            grad.addColorStop(1.0, "rgba(0, 0, 0, 0)");
+
+            octx.fillStyle = grad;
+            octx.beginPath();
+            octx.arc(r, r, r, 0, Math.PI * 2);
+            octx.fill();
+          }
+          sprites[color] = offscreen;
+        });
+      }
+
+      // ─── Layout Offsets & Scales configuration per shape ───────────────────
+      const configs = [
+        { cx: isMobile ? W * 0.5 : W * 0.72, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 400 : 550 }, // Brain
+        { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 320 : 445 }, // Lightbulb
+        { cx: isMobile ? W * 0.5 : W * 0.72, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 240 : 360 }, // Cube
+        { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 320 : 445 }, // Torus
+        { cx: isMobile ? W * 0.5 : W * 0.5,  cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 320 : 445 }, // Sphere
+        { cx: isMobile ? W * 0.5 : W * 0.5,  cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 320 : 445 }, // Scattered
+      ];
+
+      // ─── Math for Multisection Morphing ──────────────────────────────────
+      const shapesList = [sortedBrain, sortedLightbulb, sortedCube, sortedTorus, sortedSphere, sortedScattered];
+      const K = shapesList.length; // 6
+      const N = K - 1; // 5
+
+      const scaledRatio = scrollRatio * N;
+      let index = Math.floor(scaledRatio);
+      let t = scaledRatio - index;
+
+      if (index >= N) {
+        index = N - 1;
+        t = 1.0;
+      } else if (index < 0) {
+        index = 0;
+        t = 0.0;
+      }
+
+      // Scroll Snap Dead Zone curve
+      if (settingsRef.current.deadZoneEnabled) {
+        const p = settingsRef.current.deadZonePercentage / 100;
+        const halfP = p / 2;
+        if (t < halfP) {
+          t = 0;
+        } else if (t > 1 - halfP) {
+          t = 1;
+        } else {
+          t = (t - halfP) / (1 - p);
+        }
+      }
+
+      // Interpolate center and scale between the two active shapes
+      const conf1 = configs[index];
+      const conf2 = configs[index + 1] || conf1;
+
+      const cx = lerp(conf1.cx, conf2.cx, t);
+      const cy = lerp(conf1.cy, conf2.cy, t);
+      const baseScale = lerp(conf1.scale, conf2.scale, t);
 
       // ─── 3D Rotation angles over time ──────────────────────────────────────
-      const time = elapsed * 0.00015;
+      const time = elapsed * 0.00015 * settingsRef.current.autoRotateSpeed;
 
-      // Track mouse velocity for interactive wave ripple distortion
+      // Track mouse velocity
       if (mouse.active) {
         if (prevMouseX !== -1000) {
           mouseVx = mouse.x - prevMouseX;
@@ -175,157 +294,115 @@ export default function ParticleCanvas() {
 
       let targetInfluenceX = 0;
       let targetInfluenceY = 0;
-      if (hasGyro) {
+      if (hasGyro && settingsRef.current.gyroEnabled) {
         targetInfluenceX = gyroX;
         targetInfluenceY = gyroY;
       } else if (mouse.active) {
-        // Dampen cursor rotation coefficients to 33% of original (Y: 0.06, X: 0.04)
         targetInfluenceX = ((mouse.x - W / 2) / (W / 2)) * 0.06;
         targetInfluenceY = ((mouse.y - H / 2) / (H / 2)) * 0.04;
       }
       mouseInfluenceX += (targetInfluenceX - mouseInfluenceX) * 0.05;
       mouseInfluenceY += (targetInfluenceY - mouseInfluenceY) * 0.05;
 
-      // Start slightly sideways (45-deg / 1.2 rad) and rotate extremely slowly (0.12)
       const rotateY = 1.60 + time * 0.12 + mouseInfluenceX;
-      const rotateX = 0.25 + Math.sin(time * 0.15) * 0.05 + mouseInfluenceY; // very gentle nod
-      const rotateZ = Math.cos(time * 0.12) * 0.03; // very gentle tilt
+      const rotateX = 0.25 + Math.sin(time * 0.15) * 0.05 + mouseInfluenceY;
+      const rotateZ = Math.cos(time * 0.12) * 0.03;
 
-      particles.forEach((p, i) => {
-        const b = sortedBrain[i] || { x: 0, y: 0, z: 0 };
-        const l = sortedLightbulb[i] || { x: 0, y: 0, z: 0 };
-        const s = sortedSphere[i] || { x: 0, y: 0, z: 0 };
-        const sc = sortedScattered[i] || { x: 0, y: 0, z: 0 };
+      // ─── Update Loop ──────────────────────────────────────────────────────
+      for (let i = 0; i < currentCount; i++) {
+        const p = particles[i];
 
-        // 1. Interpolate coordinates in 3D space first (smoother morphs)
-        let rx: number, ry: number, rz: number;
+        const pt1 = shapesList[index][i] || { x: 0, y: 0, z: 0 };
+        const pt2 = shapesList[index + 1]?.[i] || pt1;
 
-        if (scrollRatio < 0.20) {
-          // Hero & Intro: Brain
-          rx = b.x; ry = b.y; rz = b.z;
-        } else if (scrollRatio < 0.30) {
-          // Transition: Brain -> Lightbulb
-          const t = (scrollRatio - 0.20) / 0.10;
-          rx = lerp(b.x, l.x, t);
-          ry = lerp(b.y, l.y, t);
-          rz = lerp(b.z, l.z, t);
-        } else if (scrollRatio < 0.45) {
-          // Solutions: Lightbulb
-          rx = l.x; ry = l.y; rz = l.z;
-        } else if (scrollRatio < 0.55) {
-          // Transition: Lightbulb -> Sphere / Globe
-          const t = (scrollRatio - 0.45) / 0.10;
-          rx = lerp(l.x, s.x, t);
-          ry = lerp(l.y, s.y, t);
-          rz = lerp(l.z, s.z, t);
-        } else if (scrollRatio < 0.70) {
-          // Mission: Sphere / Globe
-          rx = s.x; ry = s.y; rz = s.z;
-        } else if (scrollRatio < 0.80) {
-          // Transition: Sphere -> Scattered
-          const t = (scrollRatio - 0.70) / 0.10;
-          rx = lerp(s.x, sc.x, t);
-          ry = lerp(s.y, sc.y, t);
-          rz = lerp(s.z, sc.z, t);
-        } else {
-          // Scattered (Drift)
-          rx = sc.x; ry = sc.y; rz = sc.z;
-        }
+        let rx = lerp(pt1.x, pt2.x, t);
+        let ry = lerp(pt1.y, pt2.y, t);
+        let rz = lerp(pt1.z, pt2.z, t);
 
-        // 2. Apply 3D Rotation Matrices
-        // Y-axis rotation
+        // 3D Rotation Matrices
         const cosY = Math.cos(rotateY);
         const sinY = Math.sin(rotateY);
         let x1 = rx * cosY - rz * sinY;
         let z1 = rx * sinY + rz * cosY;
 
-        // X-axis rotation
         const cosX = Math.cos(rotateX);
         const sinX = Math.sin(rotateX);
         let y1 = ry * cosX - z1 * sinX;
         let z2 = ry * sinX + z1 * cosX;
 
-        // Z-axis rotation
         const cosZ = Math.cos(rotateZ);
         const sinZ = Math.sin(rotateZ);
         let x2 = x1 * cosZ - y1 * sinZ;
         let y2 = x1 * sinZ + y1 * cosZ;
 
-        // 3. Perspective Projection Setup
+        // Perspective Projection
         const fov = 400;
         const perspective = fov / Math.max(50, fov + z2 * 250);
         p.scaleFactor = perspective;
 
-        // 4. Determine center-anchor and scale based on scroll position
-        let cx = brainCenter.x;
-        let cy = brainCenter.y;
-        let baseScale = isMobile ? 320 : 445;
-
-        if (scrollRatio < 0.20) {
-          cx = brainCenter.x;
-          cy = brainCenter.y;
-          // Enlarge initial brain (desktop 550, mobile 400)
-          baseScale = isMobile ? 400 : 550;
-        } else if (scrollRatio < 0.30) {
-          const t1 = (scrollRatio - 0.20) / 0.10;
-          cx = lerp(brainCenter.x, sporeCenter.x, t1);
-          cy = lerp(brainCenter.y, sporeCenter.y, t1);
-          // Smoothly scale down to standard sizes
-          const initialScale = isMobile ? 400 : 550;
-          const standardScale = isMobile ? 320 : 445;
-          baseScale = lerp(initialScale, standardScale, t1);
-        } else {
-          cx = sporeCenter.x;
-          cy = sporeCenter.y;
-        }
-
         const scale = baseScale * perspective;
         let targetX = cx + x2 * scale;
-        let targetY = cy - y2 * scale; // Invert Y since screen coordinate Y runs downward
+        let targetY = cy - y2 * scale;
 
-        // Wave animation helper for scattered / floating space dust phase
-        if (scrollRatio >= 0.70) {
+        // Wave drift in Scattered phase (Index 4 to 5 transition)
+        if (index === N - 1) {
           const waveTime = Date.now() * 0.001 + p.driftOffset;
-          targetY += Math.sin(waveTime) * 15;
+          targetY += Math.sin(waveTime) * 15 * t;
         }
 
-        // 5. Spring Physics
-        const ax = (targetX - p.x) * p.springFactor;
-        const ay = (targetY - p.y) * p.springFactor;
-        p.vx = (p.vx + ax) * p.damping;
-        p.vy = (p.vy + ay) * p.damping;
+        // Spring Physics
+        const ax = (targetX - p.x) * p.springFactor * stiffnessMultiplier;
+        const ay = (targetY - p.y) * p.springFactor * stiffnessMultiplier;
+        p.vx = (p.vx + ax) * p.damping * dampingMultiplier;
+        p.vy = (p.vy + ay) * p.damping * dampingMultiplier;
 
         p.x += p.vx;
         p.y += p.vy;
 
-        // 6. Oscillatory mouse wave ripple distortion (positional shift)
-        if (mouse.active) {
+        // Proximity-based Mouse Interaction Modes
+        if (mouse.active && settingsRef.current.interactionMode !== "disabled") {
           const dx = p.x - mouse.x;
           const dy = p.y - mouse.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 120) {
-            // Normalized distance smoothstep (1 at mouse, 0 at boundary)
-            const factor = (120 - dist) / 120;
+          const radius = settingsRef.current.interactionRadius;
+
+          if (dist < radius && dist > 0) {
+            const factor = (radius - dist) / radius;
             const smoothFactor = factor * factor * (3 - 2 * factor);
+            const force = smoothFactor * settingsRef.current.interactionForce;
 
-            // Decoupled wave time using particle driftOffset
-            const waveTime = Date.now() * 0.005 + p.driftOffset;
-
-            // Volumetric breathing ripple, amplified by mouse velocity
-            const waveX = Math.sin(waveTime) * (2.0 + Math.abs(mouseVx) * 1.5) * smoothFactor;
-            const waveY = Math.cos(waveTime) * (2.0 + Math.abs(mouseVy) * 1.5) * smoothFactor;
-
-            p.x += waveX;
-            p.y += waveY;
+            const mode = settingsRef.current.interactionMode;
+            if (mode === "repel") {
+              p.vx += (dx / dist) * force * 0.4;
+              p.vy += (dy / dist) * force * 0.4;
+            } else if (mode === "attract") {
+              p.vx -= (dx / dist) * force * 0.4;
+              p.vy -= (dy / dist) * force * 0.4;
+            } else if (mode === "swarm") {
+              // Orbit velocity + slight gravity pull towards center
+              p.vx += (-dy / dist) * force * 0.5 - (dx / dist) * force * 0.08;
+              p.vy += (dx / dist) * force * 0.5 - (dy / dist) * force * 0.08;
+            } else if (mode === "ripple") {
+              // Proximity Breathing wave ripple
+              const waveTime = Date.now() * 0.005 + p.driftOffset;
+              const waveX = Math.sin(waveTime) * (1.0 + Math.abs(mouseVx) * 0.8) * force * smoothFactor;
+              const waveY = Math.cos(waveTime) * (1.0 + Math.abs(mouseVy) * 0.8) * force * smoothFactor;
+              p.x += waveX;
+              p.y += waveY;
+            }
           }
         }
-      });
+      }
 
-      // ─── Render Shaded 3D Spheres (Circles) ───────────────────────────────
-      particles.forEach((p) => {
-        if (p.shape !== "circle") return;
-        const size = p.size * p.scaleFactor;
-        const sprite = sprites[p.color];
+      // ─── Render circular particles (spheres sprites) ──────────────────────
+      for (let i = 0; i < currentCount; i++) {
+        const p = particles[i];
+        if (p.shape !== "circle") continue;
+
+        ctx!.globalAlpha = p.opacity * settingsRef.current.particleOpacity;
+        const size = p.size * p.scaleFactor * sizeMultiplier;
+        const colorHex = currentColors[p.colorIndex];
+        const sprite = sprites[colorHex];
         if (sprite) {
           ctx!.drawImage(
             sprite,
@@ -335,21 +412,25 @@ export default function ParticleCanvas() {
             size
           );
         }
-      });
+      }
 
-      // ─── Batch Render Other Vector Shapes (Triangle, Diamond, Square) ─────
-      ctx!.globalAlpha = 0.68;
-      colors.forEach((color) => {
+      // ─── Render vector particles (triangle, diamond, square) ──────────────
+      ctx!.globalAlpha = 0.68 * settingsRef.current.particleOpacity;
+
+      for (let c = 0; c < 4; c++) {
+        const colorHex = currentColors[c];
+
         shapes.forEach((shape) => {
-          if (shape === "circle") return; // Already drawn as 3D spheres!
+          if (shape === "circle") return;
 
-          ctx!.fillStyle = color;
+          ctx!.fillStyle = colorHex;
           ctx!.beginPath();
 
-          particles.forEach((p) => {
-            if (p.color !== color || p.shape !== shape) return;
+          for (let i = 0; i < currentCount; i++) {
+            const p = particles[i];
+            if (p.colorIndex !== c || p.shape !== shape) continue;
 
-            const size = p.size * p.scaleFactor;
+            const size = p.size * p.scaleFactor * sizeMultiplier;
             const halfSize = size / 2;
 
             switch (shape) {
@@ -370,11 +451,11 @@ export default function ParticleCanvas() {
                 ctx!.rect(p.x - halfSize, p.y - halfSize, size, size);
                 break;
             }
-          });
+          }
 
           ctx!.fill();
         });
-      });
+      }
 
       ctx!.globalAlpha = 1.0;
       animId = requestAnimationFrame(animate);
@@ -403,13 +484,14 @@ export default function ParticleCanvas() {
     };
 
     const handleOrientation = (e: DeviceOrientationEvent) => {
+      if (!settingsRef.current.gyroEnabled) return;
       if (e.gamma !== null && e.beta !== null) {
         hasGyro = true;
         const gammaClamped = Math.max(-30, Math.min(30, e.gamma));
         const betaClamped = Math.max(-30, Math.min(30, e.beta - 60));
 
-        gyroX = (gammaClamped / 30) * 0.30;
-        gyroY = (betaClamped / 30) * 0.20;
+        gyroX = (gammaClamped / 30) * 0.30 * settingsRef.current.gyroSensitivity;
+        gyroY = (betaClamped / 30) * 0.20 * settingsRef.current.gyroSensitivity;
       }
     };
 
