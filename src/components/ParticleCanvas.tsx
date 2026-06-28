@@ -120,7 +120,97 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
       sortedTorus.push({ x, y: y * 0.95, z });
     }
 
-    // 3. Programmatic Scattered Generator
+    // 3. Programmatic DNA Double Helix Generator
+    const sortedDNA: { x: number; y: number; z: number }[] = [];
+    const helixRadius = 0.52;
+    const helixHeight = 1.6;
+    const turns = 2.0;
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const isStrand = Math.random() < 0.7;
+      const strandIndex = i % 2;
+      const pct = Math.random();
+      const y = pct * helixHeight - (helixHeight / 2);
+      const angle = pct * turns * Math.PI * 2 + (strandIndex * Math.PI);
+      let x = 0;
+      let z = 0;
+      if (isStrand) {
+        x = Math.cos(angle) * helixRadius;
+        z = Math.sin(angle) * helixRadius;
+      } else {
+        const t_rung = randomRange(-1.0, 1.0);
+        x = Math.cos(pct * turns * Math.PI * 2) * helixRadius * t_rung;
+        z = Math.sin(pct * turns * Math.PI * 2) * helixRadius * t_rung;
+      }
+      const n = 0.02;
+      sortedDNA.push({
+        x: x + randomRange(-n, n),
+        y: y + randomRange(-n, n),
+        z: z + randomRange(-n, n),
+      });
+    }
+
+    // 4. Programmatic 3D Octahedron/Pyramid Generator
+    const sortedPyramid: { x: number; y: number; z: number }[] = [];
+    const pyrScale = 0.85;
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const face = i % 8;
+      const xSign = (face & 1) ? 1.0 : -1.0;
+      const ySign = (face & 2) ? 1.0 : -1.0;
+      const zSign = (face & 4) ? 1.0 : -1.0;
+      const A = { x: xSign, y: 0.0, z: 0.0 };
+      const B = { x: 0.0, y: ySign, z: 0.0 };
+      const C = { x: 0.0, y: 0.0, z: zSign };
+      let r1 = Math.random();
+      let r2 = Math.random();
+      if (r1 + r2 > 1.0) {
+        r1 = 1.0 - r1;
+        r2 = 1.0 - r2;
+      }
+      let x = A.x + r1 * (B.x - A.x) + r2 * (C.x - A.x);
+      let y = A.y + r1 * (B.y - A.y) + r2 * (C.y - A.y);
+      let z = A.z + r1 * (B.z - A.z) + r2 * (C.z - A.z);
+      const n = 0.02;
+      sortedPyramid.push({
+        x: (x + randomRange(-n, n)) * pyrScale,
+        y: (y + randomRange(-n, n)) * pyrScale,
+        z: (z + randomRange(-n, n)) * pyrScale,
+      });
+    }
+
+    // 5. Programmatic Mobius Strip Generator
+    const sortedMobius: { x: number; y: number; z: number }[] = [];
+    const mobiusRadius = 0.78;
+    const mobiusWidth = 0.3;
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const u = Math.random() * Math.PI * 2;
+      const v = randomRange(-mobiusWidth, mobiusWidth);
+      const x = (mobiusRadius + (v / 2) * Math.cos(u / 2)) * Math.cos(u);
+      const y = (mobiusRadius + (v / 2) * Math.cos(u / 2)) * Math.sin(u);
+      const z = (v / 2) * Math.sin(u / 2);
+      const n = 0.015;
+      sortedMobius.push({
+        x: x + randomRange(-n, n),
+        y: y + randomRange(-n, n),
+        z: z + randomRange(-n, n),
+      });
+    }
+
+    // 6. Programmatic Sine Wave Grid Generator
+    const sortedWave: { x: number; y: number; z: number }[] = [];
+    const waveAmp = 0.25;
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const x = randomRange(-0.8, 0.8);
+      const z = randomRange(-0.8, 0.8);
+      const y = Math.sin(x * 5.0) * Math.cos(z * 5.0) * waveAmp;
+      const n = 0.02;
+      sortedWave.push({
+        x: x + randomRange(-n, n),
+        y: y + randomRange(-n, n),
+        z: z + randomRange(-n, n),
+      });
+    }
+
+    // 7. Programmatic Scattered Generator
     const sortedScattered: { x: number; y: number; z: number }[] = [];
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       sortedScattered.push({
@@ -133,8 +223,12 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
     // Sort coordinates by Y (bottom-to-top) so colors blend beautifully
     sortedBrain.sort((a, b) => a.y - b.y);
     sortedLightbulb.sort((a, b) => a.y - b.y);
+    sortedDNA.sort((a, b) => a.y - b.y);
+    sortedPyramid.sort((a, b) => a.y - b.y);
     sortedCube.sort((a, b) => a.y - b.y);
     sortedTorus.sort((a, b) => a.y - b.y);
+    sortedMobius.sort((a, b) => a.y - b.y);
+    sortedWave.sort((a, b) => a.y - b.y);
     sortedSphere.sort((a, b) => a.y - b.y);
     sortedScattered.sort((a, b) => a.y - b.y);
 
@@ -228,18 +322,33 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
 
       // ─── Layout Offsets & Scales configuration per shape ───────────────────
       const configs = [
-        { cx: isMobile ? W * 0.5 : W * 0.72, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 400 : 550 }, // Brain
-        { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 320 : 445 }, // Lightbulb
-        { cx: isMobile ? W * 0.5 : W * 0.72, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 220 : 330 }, // Cube
-        { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 240 : 360 }, // Torus
-        { cx: isMobile ? W * 0.5 : W * 0.5,  cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 380 : 520 }, // Sphere
-        { cx: isMobile ? W * 0.5 : W * 0.5,  cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 320 : 445 }, // Scattered
+        { cx: isMobile ? W * 0.5 : W * 0.72, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 400 : 550 }, // Brain (Right)
+        { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 320 : 445 }, // Lightbulb (Left)
+        { cx: isMobile ? W * 0.5 : W * 0.72, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 300 : 420 }, // DNA Helix (Right)
+        { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 300 : 420 }, // Octahedron (Left)
+        { cx: isMobile ? W * 0.5 : W * 0.72, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 220 : 330 }, // Cube (Right)
+        { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 240 : 360 }, // Torus (Left)
+        { cx: isMobile ? W * 0.5 : W * 0.72, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 300 : 420 }, // Mobius Strip (Right)
+        { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 300 : 420 }, // Wave Grid (Left)
+        { cx: isMobile ? W * 0.5 : W * 0.5,  cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 380 : 520 }, // Sphere (Center)
+        { cx: isMobile ? W * 0.5 : W * 0.5,  cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 320 : 445 }, // Scattered (Center)
       ];
 
       // ─── Math for Multisection Morphing ──────────────────────────────────
-      const shapesList = [sortedBrain, sortedLightbulb, sortedCube, sortedTorus, sortedSphere, sortedScattered];
-      const K = shapesList.length; // 6
-      const N = K - 1; // 5
+      const shapesList = [
+        sortedBrain,
+        sortedLightbulb,
+        sortedDNA,
+        sortedPyramid,
+        sortedCube,
+        sortedTorus,
+        sortedMobius,
+        sortedWave,
+        sortedSphere,
+        sortedScattered
+      ];
+      const K = shapesList.length; // 10
+      const N = K - 1; // 9
 
       const scaledRatio = scrollRatio * N;
       let index = Math.floor(scaledRatio);

@@ -22,7 +22,7 @@ export default function App() {
       const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
       const ratio = scrollHeight > 0 ? scrollTop / scrollHeight : 0;
       
-      const N = 5; // shapes count - 1 (6 shapes total)
+      const N = 9; // shapes count - 1 (10 shapes total)
       const index = Math.min(Math.round(ratio * N), N);
       setActiveSection(index);
     };
@@ -36,59 +36,39 @@ export default function App() {
 
   const scrollToSection = (index: number) => {
     const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-    const targetScroll = (index / 5) * scrollHeight;
+    const targetScroll = (index / 9) * scrollHeight;
     window.scrollTo({
       top: targetScroll,
       behavior: "smooth",
     });
   };
 
-  const sectionsData = [
-    {
-      title: "Infinite Intelligence",
-      description: "Unleash the neural power of 7,000 active particles. A responsive 3D brain map that reacts dynamically to your movements, simulating synaptic firing patterns in real time.",
-      layout: "left",
-    },
-    {
-      title: "Illuminated Ideas",
-      description: "Watch ideas crystallize into light. Seamless morphing mechanics transition the particle swarm into an organic glowing lightbulb structure, representing clarity and innovation.",
-      layout: "right",
-    },
-    {
-      title: "Geometric Symmetry",
-      description: "Perfect mathematical structure. Particles arrange themselves onto the six faces of a hollow 3D cube, showcasing structural balance, dimensions, and structural logic.",
-      layout: "left",
-    },
-    {
-      title: "Continuous Harmony",
-      description: "An infinite loop of digital current. The torus represents a perfect closed feedback system. A beautiful donut configuration that flows continuously in 3D space.",
-      layout: "right",
-    },
-    {
-      title: "Global Connection",
-      description: "A unified, spherical network traversing the globe. Representing holistic systems, global scaling, and infinite connection across a single orbital axis.",
-      layout: "center",
-    },
-    {
-      title: "Cosmic Drift",
-      description: "Entropy in digital equilibrium. The particles disperse into a gentle, floating space dust field. Hover to ripple the cosmos or toggle settings to bend the laws of physics.",
-      layout: "center",
-    },
+  const shapesMetadata = [
+    "Synaptic Brain",
+    "Innovating Lightbulb",
+    "DNA Double Helix",
+    "Structured Octahedron",
+    "Geometric Cube",
+    "Flowing Torus",
+    "Infinite Mobius",
+    "Sine Wave Grid",
+    "Holistic Sphere",
+    "Cosmic Scattered",
   ];
 
   return (
-    <div style={{ minHeight: "600vh", position: "relative" }}>
+    <div style={{ minHeight: "1000vh", position: "relative" }}>
       {/* Background Interactive Canvas */}
       <ParticleCanvas settings={settings} />
 
       {/* Scroll Indicators Sidebar */}
       <div className="scroll-indicator-bar">
-        {sectionsData.map((_, index) => (
+        {shapesMetadata.map((shapeName, index) => (
           <div
             key={index}
             className={`scroll-dot ${activeSection === index ? "active" : ""}`}
             onClick={() => scrollToSection(index)}
-            title={`Scroll to Shape ${index + 1}`}
+            title={`Scroll to ${shapeName}`}
           />
         ))}
       </div>
@@ -120,14 +100,9 @@ export default function App() {
         onToggle={() => setIsSettingsOpen(false)}
       />
 
-      {/* Full-bleed Content Sections */}
-      {sectionsData.map((section, index) => (
-        <section key={index} className={`section layout-${section.layout}`}>
-          <div className="section-content">
-            <h1>{section.title}</h1>
-            <p>{section.description}</p>
-          </div>
-        </section>
+      {/* Empty snap target sections (keeps scroll snap functionality and enables fall-through clicks) */}
+      {Array.from({ length: 10 }).map((_, index) => (
+        <section key={index} className="section" style={{ pointerEvents: "none" }} />
       ))}
     </div>
   );
