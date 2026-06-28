@@ -177,38 +177,7 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
       });
     }
 
-    // 5. Programmatic Mobius Strip Generator
-    const sortedMobius: { x: number; y: number; z: number }[] = [];
-    const mobiusRadius = 0.78;
-    const mobiusWidth = 0.3;
-    for (let i = 0; i < PARTICLE_COUNT; i++) {
-      const u = Math.random() * Math.PI * 2;
-      const v = randomRange(-mobiusWidth, mobiusWidth);
-      const x = (mobiusRadius + (v / 2) * Math.cos(u / 2)) * Math.cos(u);
-      const y = (mobiusRadius + (v / 2) * Math.cos(u / 2)) * Math.sin(u);
-      const z = (v / 2) * Math.sin(u / 2);
-      const n = 0.015;
-      sortedMobius.push({
-        x: x + randomRange(-n, n),
-        y: y + randomRange(-n, n),
-        z: z + randomRange(-n, n),
-      });
-    }
 
-    // 6. Programmatic Sine Wave Grid Generator
-    const sortedWave: { x: number; y: number; z: number }[] = [];
-    const waveAmp = 0.25;
-    for (let i = 0; i < PARTICLE_COUNT; i++) {
-      const x = randomRange(-0.8, 0.8);
-      const z = randomRange(-0.8, 0.8);
-      const y = Math.sin(x * 5.0) * Math.cos(z * 5.0) * waveAmp;
-      const n = 0.02;
-      sortedWave.push({
-        x: x + randomRange(-n, n),
-        y: y + randomRange(-n, n),
-        z: z + randomRange(-n, n),
-      });
-    }
 
     // 7. Programmatic Scattered Generator
     const sortedScattered: { x: number; y: number; z: number }[] = [];
@@ -227,8 +196,7 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
     sortedPyramid.sort((a, b) => a.y - b.y);
     sortedCube.sort((a, b) => a.y - b.y);
     sortedTorus.sort((a, b) => a.y - b.y);
-    sortedMobius.sort((a, b) => a.y - b.y);
-    sortedWave.sort((a, b) => a.y - b.y);
+
     sortedSphere.sort((a, b) => a.y - b.y);
     sortedScattered.sort((a, b) => a.y - b.y);
 
@@ -328,8 +296,6 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
         { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 300 : 420 }, // Octahedron (Left)
         { cx: isMobile ? W * 0.5 : W * 0.72, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 220 : 330 }, // Cube (Right)
         { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 240 : 360 }, // Torus (Left)
-        { cx: isMobile ? W * 0.5 : W * 0.72, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 300 : 420 }, // Mobius Strip (Right)
-        { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 300 : 420 }, // Wave Grid (Left)
         { cx: isMobile ? W * 0.5 : W * 0.5,  cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 380 : 520 }, // Sphere (Center)
         { cx: isMobile ? W * 0.5 : W * 0.5,  cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 320 : 445 }, // Scattered (Center)
       ];
@@ -342,13 +308,11 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
         sortedPyramid,
         sortedCube,
         sortedTorus,
-        sortedMobius,
-        sortedWave,
         sortedSphere,
         sortedScattered
       ];
-      const K = shapesList.length; // 10
-      const N = K - 1; // 9
+      const K = shapesList.length; // 8
+      const N = K - 1; // 7
 
       const scaledRatio = scrollRatio * N;
       let index = Math.floor(scaledRatio);
