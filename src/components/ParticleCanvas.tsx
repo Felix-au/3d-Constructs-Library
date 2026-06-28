@@ -195,26 +195,7 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
       });
     }
 
-    // 6. Programmatic Helical Spring Coil Generator
-    const sortedSpring: { x: number; y: number; z: number }[] = [];
-    const springRadius = 0.45;
-    const springHeight = 1.5;
-    const springTurns = 6.0;
-    for (let i = 0; i < PARTICLE_COUNT; i++) {
-      const pct = i / PARTICLE_COUNT;
-      const y = pct * springHeight - (springHeight / 2);
-      const angle = pct * springTurns * Math.PI * 2;
-      let x = Math.cos(angle) * springRadius;
-      let z = Math.sin(angle) * springRadius;
-      const n = 0.02;
-      sortedSpring.push({
-        x: x + randomRange(-n, n),
-        y: y + randomRange(-n, n),
-        z: z + randomRange(-n, n),
-      });
-    }
-
-    // 7. Programmatic 3D Astroid Star Generator
+    // 6. Programmatic 3D Astroid Star Generator
     const sortedAstroid: { x: number; y: number; z: number }[] = [];
     const astroidScale = 0.95;
     for (let i = 0; i < PARTICLE_COUNT; i++) {
@@ -232,58 +213,6 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
         x: (x + randomRange(-n, n)) * astroidScale,
         y: (y + randomRange(-n, n)) * astroidScale,
         z: (z + randomRange(-n, n)) * astroidScale,
-      });
-    }
-
-    // 8. Programmatic 3D Crescent Moon Generator
-    const sortedMoon: { x: number; y: number; z: number }[] = [];
-    const moonScale = 0.8;
-    for (let i = 0; i < PARTICLE_COUNT; i++) {
-      const theta = randomRange(-Math.PI / 2, Math.PI / 2);
-      const t = Math.random();
-      const x1 = Math.cos(theta);
-      const y1 = Math.sin(theta);
-      const x2 = Math.cos(theta) * 0.6 + 0.38;
-      const y2 = Math.sin(theta);
-      const x = lerp(x1, x2, t);
-      const y = lerp(y1, y2, t);
-      const maxZ = Math.cos(theta) * Math.sin(t * Math.PI) * 0.35;
-      const z = randomRange(-maxZ, maxZ);
-      const n = 0.02;
-      sortedMoon.push({
-        x: (x + randomRange(-n, n)) * moonScale - 0.2,
-        y: (y + randomRange(-n, n)) * moonScale,
-        z: z + randomRange(-n, n),
-      });
-    }
-
-    // 9. Programmatic 3D Cross/Plus Symbol Generator
-    const sortedCross: { x: number; y: number; z: number }[] = [];
-    const crossScale = 0.8;
-    const barWidth = 0.22;
-    for (let i = 0; i < PARTICLE_COUNT; i++) {
-      const bar = i % 3;
-      let x = 0;
-      let y = 0;
-      let z = 0;
-      if (bar === 0) {
-        x = randomRange(-1.0, 1.0);
-        y = randomRange(-barWidth, barWidth);
-        z = randomRange(-barWidth, barWidth);
-      } else if (bar === 1) {
-        x = randomRange(-barWidth, barWidth);
-        y = randomRange(-1.0, 1.0);
-        z = randomRange(-barWidth, barWidth);
-      } else {
-        x = randomRange(-barWidth, barWidth);
-        y = randomRange(-barWidth, barWidth);
-        z = randomRange(-1.0, 1.0);
-      }
-      const n = 0.015;
-      sortedCross.push({
-        x: (x + randomRange(-n, n)) * crossScale,
-        y: (y + randomRange(-n, n)) * crossScale,
-        z: (z + randomRange(-n, n)) * crossScale,
       });
     }
 
@@ -305,10 +234,7 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
     sortedCube.sort((a, b) => a.y - b.y);
     sortedTorus.sort((a, b) => a.y - b.y);
     sortedTrefoil.sort((a, b) => a.y - b.y);
-    sortedSpring.sort((a, b) => a.y - b.y);
     sortedAstroid.sort((a, b) => a.y - b.y);
-    sortedMoon.sort((a, b) => a.y - b.y);
-    sortedCross.sort((a, b) => a.y - b.y);
     sortedSphere.sort((a, b) => a.y - b.y);
     sortedScattered.sort((a, b) => a.y - b.y);
 
@@ -409,10 +335,7 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
         { cx: isMobile ? W * 0.5 : W * 0.72, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 220 : 330 }, // Cube (Right)
         { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 240 : 360 }, // Torus (Left, rotated sideways)
         { cx: isMobile ? W * 0.5 : W * 0.72, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 300 : 420 }, // Trefoil Knot (Right)
-        { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 300 : 420 }, // Spring Coil (Left)
-        { cx: isMobile ? W * 0.5 : W * 0.72, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 300 : 420 }, // Astroid Star (Right)
-        { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 300 : 420 }, // Crescent Moon (Left)
-        { cx: isMobile ? W * 0.5 : W * 0.72, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 300 : 420 }, // Cross / Plus Symbol (Right)
+        { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 300 : 420 }, // Astroid Star (Left)
         { cx: isMobile ? W * 0.5 : W * 0.5,  cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 380 : 520 }, // Sphere (Center)
         { cx: isMobile ? W * 0.5 : W * 0.5,  cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 320 : 445 }, // Scattered (Center)
       ];
@@ -426,15 +349,12 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
         sortedCube,
         sortedTorus,
         sortedTrefoil,
-        sortedSpring,
         sortedAstroid,
-        sortedMoon,
-        sortedCross,
         sortedSphere,
         sortedScattered
       ];
-      const K = shapesList.length; // 12
-      const N = K - 1; // 11
+      const K = shapesList.length; // 10
+      const N = K - 1; // 9
 
       const scaledRatio = scrollRatio * N;
       let index = Math.floor(scaledRatio);
