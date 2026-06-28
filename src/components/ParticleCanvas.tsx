@@ -280,7 +280,23 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
 
       // Real-time configurations from ref
       const currentCount = Math.min(particles.length, settingsRef.current.particleCount);
-      const currentColors = settingsRef.current.colors;
+      // Resolve white/black colors depending on theme to prevent them from disappearing
+      const theme = settingsRef.current.theme;
+      const currentColors = settingsRef.current.colors.map((c) => {
+        const lower = c.trim().toLowerCase();
+        if (theme === "white") {
+          // If light theme, convert complete white to black
+          if (lower === "#ffffff" || lower === "#fff" || lower === "rgb(255,255,255)" || lower === "white") {
+            return "#000000";
+          }
+        } else if (theme === "black") {
+          // If dark theme, convert complete black to white
+          if (lower === "#000000" || lower === "#000" || lower === "rgb(0,0,0)" || lower === "black") {
+            return "#ffffff";
+          }
+        }
+        return c;
+      }) as [string, string, string, string];
       const stiffnessMultiplier = settingsRef.current.springStiffness / 0.03;
       const dampingMultiplier = settingsRef.current.damping / 0.90;
       const sizeMultiplier = settingsRef.current.particleSize / 3.0;

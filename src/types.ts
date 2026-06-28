@@ -22,7 +22,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   particleCount: 7000,
   particleSize: 3.0,
   particleOpacity: 0.75,
-  colors: ["#ff0000", "#00ff00", "#ffb829", "#0ffff0"], // Red, Green, Yellow, Cyan
+  colors: ["#ffffff", "#00ff00", "#ffb829", "#0ffff0"], // White, Green, Yellow, Cyan
   interactionMode: "ripple",
   interactionForce: 2.0,
   interactionRadius: 100,
