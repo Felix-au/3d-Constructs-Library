@@ -70,7 +70,20 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
 
     // ─── 3D Coordinates Setup ──────────────────────────────────────────────
     const sortedBrain = [...rawParticles.brain].slice(0, PARTICLE_COUNT);
-    const sortedLightbulb = [...rawParticles.lightbulb].slice(0, PARTICLE_COUNT);
+    // Expand lightbulb by 1.25 and rotate 45 degrees around X-axis
+    const angle45 = Math.PI / 4; // 45 degrees in radians
+    const cos45 = Math.cos(angle45);
+    const sin45 = Math.sin(angle45);
+    const sortedLightbulb = [...rawParticles.lightbulb].slice(0, PARTICLE_COUNT).map((p) => {
+      const ex = p.x * 1.25;
+      const ey = p.y * 1.25;
+      const ez = p.z * 1.25;
+      return {
+        x: ex,
+        y: ey * cos45 - ez * sin45,
+        z: ey * sin45 + ez * cos45,
+      };
+    });
     const sortedSphere = [...rawParticles.sphere].slice(0, PARTICLE_COUNT);
 
     // 1. Programmatic 3D Cube Generator (hollow, with slight organic noise)
