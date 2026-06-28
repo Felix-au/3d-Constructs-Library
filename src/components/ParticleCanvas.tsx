@@ -70,8 +70,8 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
 
     // ─── 3D Coordinates Setup ──────────────────────────────────────────────
     const sortedBrain = [...rawParticles.brain].slice(0, PARTICLE_COUNT);
-    // Expand lightbulb by 1.25 and rotate 45 degrees around X-axis
-    const angle45 = Math.PI / 4; // 45 degrees in radians
+    // Expand lightbulb by 1.25 and rotate -45 degrees around X-axis
+    const angle45 = -Math.PI / 4; // -45 degrees in radians
     const cos45 = Math.cos(angle45);
     const sin45 = Math.sin(angle45);
     const sortedLightbulb = [...rawParticles.lightbulb].slice(0, PARTICLE_COUNT).map((p) => {
