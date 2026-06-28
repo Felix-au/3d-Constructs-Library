@@ -94,16 +94,16 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
       z += randomRange(-noise, noise);
 
       sortedCube.push({
-        x: x * 0.55,
-        y: y * 0.55,
-        z: z * 0.55,
+        x: x * 0.42,
+        y: y * 0.42,
+        z: z * 0.42,
       });
     }
 
     // 2. Programmatic 3D Torus Generator (with slight organic noise)
     const sortedTorus: { x: number; y: number; z: number }[] = [];
-    const R_torus = 1.0;
-    const r_torus = 0.35;
+    const R_torus = 0.75;
+    const r_torus = 0.22;
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.random() * Math.PI * 2;
@@ -230,9 +230,9 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
       const configs = [
         { cx: isMobile ? W * 0.5 : W * 0.72, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 400 : 550 }, // Brain
         { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 320 : 445 }, // Lightbulb
-        { cx: isMobile ? W * 0.5 : W * 0.72, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 240 : 360 }, // Cube
-        { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 320 : 445 }, // Torus
-        { cx: isMobile ? W * 0.5 : W * 0.5,  cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 320 : 445 }, // Sphere
+        { cx: isMobile ? W * 0.5 : W * 0.72, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 220 : 330 }, // Cube
+        { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 240 : 360 }, // Torus
+        { cx: isMobile ? W * 0.5 : W * 0.5,  cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 380 : 520 }, // Sphere
         { cx: isMobile ? W * 0.5 : W * 0.5,  cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 320 : 445 }, // Scattered
       ];
 
