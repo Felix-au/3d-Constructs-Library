@@ -178,8 +178,82 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
     }
 
 
+    // 5. Programmatic Trefoil Knot Generator
+    const sortedTrefoil: { x: number; y: number; z: number }[] = [];
+    const trefoilScale = 0.38;
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const t = (i / PARTICLE_COUNT) * Math.PI * 2 * 3;
+      const x = Math.sin(t) + 2.0 * Math.sin(2.0 * t);
+      const y = Math.cos(t) - 2.0 * Math.cos(2.0 * t);
+      const z = -Math.sin(3.0 * t);
+      const n = 0.02;
+      sortedTrefoil.push({
+        x: (x + randomRange(-n, n)) * trefoilScale,
+        y: (y + randomRange(-n, n)) * trefoilScale,
+        z: (z + randomRange(-n, n)) * trefoilScale,
+      });
+    }
 
-    // 7. Programmatic Scattered Generator
+    // 6. Programmatic Conical Vortex (Tornado) Generator
+    const sortedVortex: { x: number; y: number; z: number }[] = [];
+    const vortexHeight = 1.4;
+    const maxRadius = 0.8;
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const pct = Math.random();
+      const y = pct * vortexHeight - (vortexHeight / 2);
+      const r = pct * maxRadius;
+      const theta = pct * 6.0 * Math.PI * 2;
+      const x = Math.cos(theta) * r;
+      const z = Math.sin(theta) * r;
+      const n = 0.02;
+      sortedVortex.push({
+        x: x + randomRange(-n, n),
+        y: y + randomRange(-n, n),
+        z: z + randomRange(-n, n),
+      });
+    }
+
+    // 7. Programmatic 3D Astroid Star Generator
+    const sortedAstroid: { x: number; y: number; z: number }[] = [];
+    const astroidScale = 0.95;
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const u = randomRange(-Math.PI / 2, Math.PI / 2);
+      const v = randomRange(-Math.PI, Math.PI);
+      const cosU = Math.cos(u);
+      const sinU = Math.sin(u);
+      const cosV = Math.cos(v);
+      const sinV = Math.sin(v);
+      const x = cosU * cosU * cosU * cosV * cosV * cosV;
+      const y = sinU * sinU * sinU * cosV * cosV * cosV;
+      const z = sinV * sinV * sinV;
+      const n = 0.02;
+      sortedAstroid.push({
+        x: (x + randomRange(-n, n)) * astroidScale,
+        y: (y + randomRange(-n, n)) * astroidScale,
+        z: (z + randomRange(-n, n)) * astroidScale,
+      });
+    }
+
+    // 8. Programmatic Hourglass (Double Cone) Generator
+    const sortedHourglass: { x: number; y: number; z: number }[] = [];
+    const hourglassHeight = 1.4;
+    const maxRadiusPyr = 0.65;
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const pct = Math.random();
+      const y = pct * hourglassHeight - (hourglassHeight / 2);
+      const r = (Math.abs(y) / (hourglassHeight / 2)) * maxRadiusPyr;
+      const theta = Math.random() * Math.PI * 2;
+      const x = Math.cos(theta) * r;
+      const z = Math.sin(theta) * r;
+      const n = 0.02;
+      sortedHourglass.push({
+        x: x + randomRange(-n, n),
+        y: y + randomRange(-n, n),
+        z: z + randomRange(-n, n),
+      });
+    }
+
+    // 9. Programmatic Scattered Generator
     const sortedScattered: { x: number; y: number; z: number }[] = [];
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       sortedScattered.push({
@@ -196,7 +270,10 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
     sortedPyramid.sort((a, b) => a.y - b.y);
     sortedCube.sort((a, b) => a.y - b.y);
     sortedTorus.sort((a, b) => a.y - b.y);
-
+    sortedTrefoil.sort((a, b) => a.y - b.y);
+    sortedVortex.sort((a, b) => a.y - b.y);
+    sortedAstroid.sort((a, b) => a.y - b.y);
+    sortedHourglass.sort((a, b) => a.y - b.y);
     sortedSphere.sort((a, b) => a.y - b.y);
     sortedScattered.sort((a, b) => a.y - b.y);
 
@@ -296,6 +373,10 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
         { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 300 : 420 }, // Octahedron (Left)
         { cx: isMobile ? W * 0.5 : W * 0.72, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 220 : 330 }, // Cube (Right)
         { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 240 : 360 }, // Torus (Left)
+        { cx: isMobile ? W * 0.5 : W * 0.72, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 300 : 420 }, // Trefoil Knot (Right)
+        { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 300 : 420 }, // Vortex (Left)
+        { cx: isMobile ? W * 0.5 : W * 0.72, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 300 : 420 }, // Astroid Star (Right)
+        { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 300 : 420 }, // Hourglass (Left)
         { cx: isMobile ? W * 0.5 : W * 0.5,  cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 380 : 520 }, // Sphere (Center)
         { cx: isMobile ? W * 0.5 : W * 0.5,  cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 320 : 445 }, // Scattered (Center)
       ];
@@ -308,11 +389,15 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
         sortedPyramid,
         sortedCube,
         sortedTorus,
+        sortedTrefoil,
+        sortedVortex,
+        sortedAstroid,
+        sortedHourglass,
         sortedSphere,
         sortedScattered
       ];
-      const K = shapesList.length; // 8
-      const N = K - 1; // 7
+      const K = shapesList.length; // 12
+      const N = K - 1; // 11
 
       const scaledRatio = scrollRatio * N;
       let index = Math.floor(scaledRatio);
