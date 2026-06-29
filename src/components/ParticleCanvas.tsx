@@ -36,6 +36,15 @@ function lerp(start: number, end: number, t: number) {
   return start * (1 - t) + end * t;
 }
 
+function shuffleArray<T>(array: T[]) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = array[i];
+    array[i] = array[j];
+    array[j] = temp;
+  }
+}
+
 export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const settingsRef = useRef<AppSettings>(settings);
@@ -85,13 +94,7 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
       };
     });
     const sortedSphere = [...rawParticles.sphere].slice(0, PARTICLE_COUNT);
-    // Shuffle the sphere coordinates so that colors are randomly mixed and scattered rather than height-banded
-    for (let i = sortedSphere.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      const temp = sortedSphere[i];
-      sortedSphere[i] = sortedSphere[j];
-      sortedSphere[j] = temp;
-    }
+    shuffleArray(sortedSphere);
 
     // 1. Programmatic 3D Cube Generator (hollow, with slight organic noise)
     const sortedCube: { x: number; y: number; z: number }[] = [];
@@ -119,6 +122,7 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
         z: z * 0.42,
       });
     }
+    shuffleArray(sortedCube);
 
     // 2. Programmatic 3D Torus Generator (with slight organic noise)
     const sortedTorus: { x: number; y: number; z: number }[] = [];
@@ -140,6 +144,7 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
       // Rotate by 90 degrees around Y-axis sideways (swap x and z)
       sortedTorus.push({ x: z, y: y * 0.95, z: -x });
     }
+    shuffleArray(sortedTorus);
 
     // 3. Programmatic DNA Double Helix Generator
     const sortedDNA: { x: number; y: number; z: number }[] = [];
@@ -197,6 +202,7 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
         z: (z + randomRange(-n, n)) * pyrScale,
       });
     }
+    shuffleArray(sortedPyramid);
 
 
     // 5. Programmatic Trefoil Knot Generator
@@ -214,6 +220,7 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
         z: (z + randomRange(-n, n)) * trefoilScale,
       });
     }
+    shuffleArray(sortedTrefoil);
 
     // 6. Programmatic 3D Astroid Star Generator
     const sortedAstroid: { x: number; y: number; z: number }[] = [];
@@ -250,10 +257,6 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
     sortedBrain.sort((a, b) => a.y - b.y);
     sortedLightbulb.sort((a, b) => a.y - b.y);
     sortedDNA.sort((a, b) => a.y - b.y);
-    sortedPyramid.sort((a, b) => a.y - b.y);
-    sortedCube.sort((a, b) => a.y - b.y);
-    sortedTorus.sort((a, b) => a.y - b.y);
-    sortedTrefoil.sort((a, b) => a.y - b.y);
     sortedAstroid.sort((a, b) => a.y - b.y);
     sortedScattered.sort((a, b) => a.y - b.y);
 
