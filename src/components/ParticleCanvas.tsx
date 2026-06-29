@@ -84,13 +84,104 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
         z: ey * sin45 + ez * cos45,
       };
     });
-    const sortedSphere = [...rawParticles.sphere].slice(0, PARTICLE_COUNT);
-    // Shuffle the sphere coordinates so that colors are randomly mixed and scattered rather than height-banded
-    for (let i = sortedSphere.length - 1; i > 0; i--) {
+    // Programmatic 3D Sphere Generator (75% outline as alternating latitude/longitude lines, 25% face/surface fill)
+    const sortedSphere: { x: number; y: number; z: number }[] = new Array(PARTICLE_COUNT);
+    const sphFillIndices: number[] = [];
+    const sphFillCoordinates: { x: number; y: number; z: number }[] = [];
+    const sphereRadius = 0.82;
+
+    const N_lat = 10; // 10 latitude lines
+    const N_lon = 12; // 12 longitude lines
+
+    for (let c = 0; c < 4; c++) {
+      const bandStart = c * 1750;
+
+      // A: Generate outline particles (1312 particles)
+      for (let i = 0; i < 1312; i++) {
+        let x = 0, y = 0, z = 0;
+
+        if (c === 0 || c === 1) {
+          // Latitudes: Color 0 even lines, Color 1 odd lines
+          const availableIndices = [];
+          for (let k = 1; k <= N_lat; k++) {
+            if (c === 0 && k % 2 === 0) availableIndices.push(k);
+            if (c === 1 && k % 2 !== 0) availableIndices.push(k);
+          }
+          const k = availableIndices[i % availableIndices.length];
+          const phi = (k / (N_lat + 1)) * Math.PI;
+          const theta = Math.random() * Math.PI * 2;
+
+          x = Math.sin(phi) * Math.cos(theta);
+          y = Math.cos(phi); // Y is vertical axis
+          z = Math.sin(phi) * Math.sin(theta);
+        } else {
+          // Longitudes: Color 2 even lines, Color 3 odd lines
+          const availableIndices = [];
+          for (let j = 0; j < N_lon; j++) {
+            if (c === 2 && j % 2 === 0) availableIndices.push(j);
+            if (c === 3 && j % 2 !== 0) availableIndices.push(j);
+          }
+          const j = availableIndices[i % availableIndices.length];
+          const theta = (j / N_lon) * Math.PI * 2;
+          const phi = Math.random() * Math.PI;
+
+          x = Math.sin(phi) * Math.cos(theta);
+          y = Math.cos(phi); // Y is vertical axis
+          z = Math.sin(phi) * Math.sin(theta);
+        }
+
+        // Add noise
+        const noise = 0.015;
+        x += randomRange(-noise, noise);
+        y += randomRange(-noise, noise);
+        z += randomRange(-noise, noise);
+
+        sortedSphere[bandStart + i] = {
+          x: x * sphereRadius,
+          y: y * sphereRadius,
+          z: z * sphereRadius
+        };
+      }
+
+      // B: Generate face particles (438 particles)
+      for (let i = 1312; i < 1750; i++) {
+        const idx = bandStart + i;
+        sphFillIndices.push(idx);
+
+        // Uniform spherical surface distribution
+        const theta = Math.random() * Math.PI * 2;
+        const cosPhi = randomRange(-1.0, 1.0);
+        const phi = Math.acos(cosPhi);
+
+        let x = Math.sin(phi) * Math.cos(theta);
+        let y = Math.cos(phi);
+        let z = Math.sin(phi) * Math.sin(theta);
+
+        // Add scattering noise
+        const noise = 0.02;
+        x += randomRange(-noise, noise);
+        y += randomRange(-noise, noise);
+        z += randomRange(-noise, noise);
+
+        sphFillCoordinates.push({
+          x: x * sphereRadius,
+          y: y * sphereRadius,
+          z: z * sphereRadius
+        });
+      }
+    }
+
+    // Shuffle the fill coordinates so that fill colors are randomly mixed and scattered
+    for (let i = sphFillCoordinates.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      const temp = sortedSphere[i];
-      sortedSphere[i] = sortedSphere[j];
-      sortedSphere[j] = temp;
+      const temp = sphFillCoordinates[i];
+      sphFillCoordinates[i] = sphFillCoordinates[j];
+      sphFillCoordinates[j] = temp;
+    }
+
+    // Put shuffled fill coordinates back into their reserved slots in sortedSphere
+    for (let i = 0; i < sphFillIndices.length; i++) {
+      sortedSphere[sphFillIndices[i]] = sphFillCoordinates[i];
     }
 
     // 1. Programmatic 3D Cube Generator (hollow, with distinct edge outlines and solid-colored edges)
@@ -715,6 +806,25 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
       mouseInfluenceX += (targetInfluenceX - mouseInfluenceX) * 0.05;
       mouseInfluenceY += (targetInfluenceY - mouseInfluenceY) * 0.05;
 
+      // Offsets for [rotateX, rotateY, rotateZ] for each of the 11 shapes:
+      // Index 1 (Lightbulb): -30 degrees (-0.5236 rad) Y-rotation offset
+      // Index 4 (Cube): +15 degrees (+0.2618 rad) X-rotation offset, +30 degrees (+0.5236 rad) Y-rotation offset
+      // Index 5 (Torus): +25 degrees (+0.4363 rad) Y-rotation offset
+      // Index 6 (Trefoil Knot): +100 degrees (+1.7453 rad) Y-rotation offset
+      const shapeOffsets = [
+        { rx: 0, ry: 0, rz: 0 },         // 0: Brain
+        { rx: 0, ry: -0.5236, rz: 0 },   // 1: Lightbulb
+        { rx: 0, ry: 0, rz: 0 },         // 2: DNA
+        { rx: 0, ry: 0, rz: 0 },         // 3: Octahedron
+        { rx: 0.2618, ry: 0.5236, rz: 0 },// 4: Cube
+        { rx: 0, ry: 0.4363, rz: 0 },    // 5: Torus
+        { rx: 0, ry: 1.7453, rz: 0 },    // 6: Trefoil Knot
+        { rx: 0, ry: 0, rz: 0 },         // 7: Astroid
+        { rx: 0, ry: 0, rz: 0 },         // 8: Sphere
+        { rx: 0, ry: 0, rz: 0 },         // 9: Scattered
+        { rx: 0, ry: 0, rz: 0 }          // 10: Envelope
+      ];
+
       // Update local timers for all shapes based on active/inactive states
       for (let i = 0; i < 11; i++) {
         const active = (i === index && t < 1) || (i === index + 1 && t > 0);
@@ -725,15 +835,18 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
         }
       }
 
+      const off1 = shapeOffsets[index];
+      const off2 = shapeOffsets[index + 1] || off1;
+
       const t1 = localTimes[index] * 0.00015 * settingsRef.current.autoRotateSpeed;
-      const ry1 = 1.60 + t1 * 0.12 + mouseInfluenceX;
-      const rx1 = 0.25 + Math.sin(t1 * 0.15) * 0.05 + mouseInfluenceY;
-      const rz1 = Math.cos(t1 * 0.12) * 0.03;
+      const ry1 = 1.60 + off1.ry + t1 * 0.12 + mouseInfluenceX;
+      const rx1 = 0.25 + off1.rx + Math.sin(t1 * 0.15) * 0.05 + mouseInfluenceY;
+      const rz1 = off1.rz + Math.cos(t1 * 0.12) * 0.03;
 
       const t2 = localTimes[index + 1] * 0.00015 * settingsRef.current.autoRotateSpeed;
-      const ry2 = 1.60 + t2 * 0.12 + mouseInfluenceX;
-      const rx2 = 0.25 + Math.sin(t2 * 0.15) * 0.05 + mouseInfluenceY;
-      const rz2 = Math.cos(t2 * 0.12) * 0.03;
+      const ry2 = 1.60 + off2.ry + t2 * 0.12 + mouseInfluenceX;
+      const rx2 = 0.25 + off2.rx + Math.sin(t2 * 0.15) * 0.05 + mouseInfluenceY;
+      const rz2 = off2.rz + Math.cos(t2 * 0.12) * 0.03;
 
       const rotateY = lerp(ry1, ry2, t);
       const rotateX = lerp(rx1, rx2, t);

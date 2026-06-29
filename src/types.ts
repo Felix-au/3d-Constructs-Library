@@ -26,7 +26,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   interactionMode: "ripple",
   interactionForce: 2.0,
   interactionRadius: 100,
-  springStiffness: 0.03,
+  springStiffness: 0.01,
   damping: 0.90,
   gyroEnabled: true,
   gyroSensitivity: 1.0,
