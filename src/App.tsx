@@ -52,9 +52,9 @@ export default function App() {
     "Flowing Torus",
     "Torus Trefoil Knot",
     "Astroid Star",
+    "Email Envelope",
     "Holistic Sphere",
     "Cosmic Scattered",
-    "Email Envelope",
   ];
 
   return (

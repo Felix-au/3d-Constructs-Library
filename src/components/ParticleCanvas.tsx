@@ -672,7 +672,6 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
         });
       }
 
-      // ─── Layout Offsets & Scales configuration per shape ───────────────────
       const configs = [
         { cx: isMobile ? W * 0.5 : W * 0.72, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 400 : 550 }, // Brain (Right)
         { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 320 : 445 }, // Lightbulb (Left)
@@ -682,9 +681,9 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
         { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 240 : 360 }, // Torus (Left, rotated sideways)
         { cx: isMobile ? W * 0.5 : W * 0.72, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 300 : 420 }, // Trefoil Knot (Right)
         { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 300 : 420 }, // Astroid Star (Left)
+        { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 320 : 445 }, // Email Envelope (Left)
         { cx: isMobile ? W * 0.5 : W * 0.5, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 380 : 520 }, // Sphere (Center)
         { cx: isMobile ? W * 0.5 : W * 0.5, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 320 : 445 }, // Scattered (Center)
-        { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 320 : 445 }, // Email Envelope (Left)
       ];
 
       // ─── Math for Multisection Morphing ──────────────────────────────────
@@ -697,9 +696,9 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
         sortedTorus,
         sortedTrefoil,
         sortedAstroid,
+        sortedEnvelope,
         sortedSphere,
-        sortedScattered,
-        sortedEnvelope
+        sortedScattered
       ];
       const K = shapesList.length; // 11
       const N = K - 1; // 10
