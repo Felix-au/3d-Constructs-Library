@@ -22,7 +22,7 @@ export default function App() {
       const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
       const ratio = scrollHeight > 0 ? scrollTop / scrollHeight : 0;
       
-      const N = 9; // shapes count - 1 (10 shapes total)
+      const N = 10; // shapes count - 1 (11 shapes total)
       const index = Math.min(Math.round(ratio * N), N);
       setActiveSection(index);
     };
@@ -36,7 +36,7 @@ export default function App() {
 
   const scrollToSection = (index: number) => {
     const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-    const targetScroll = (index / 9) * scrollHeight;
+    const targetScroll = (index / 10) * scrollHeight;
     window.scrollTo({
       top: targetScroll,
       behavior: "smooth",
@@ -54,10 +54,11 @@ export default function App() {
     "Astroid Star",
     "Holistic Sphere",
     "Cosmic Scattered",
+    "Email Envelope",
   ];
 
   return (
-    <div style={{ minHeight: "1000vh", position: "relative" }}>
+    <div style={{ minHeight: "1100vh", position: "relative" }}>
       {/* Background Interactive Canvas */}
       <ParticleCanvas settings={settings} />
 
@@ -101,7 +102,7 @@ export default function App() {
       />
 
       {/* Empty snap target sections (keeps scroll snap functionality and enables fall-through clicks) */}
-      {Array.from({ length: 10 }).map((_, index) => (
+      {Array.from({ length: 11 }).map((_, index) => (
         <section key={index} className="section" style={{ pointerEvents: "none" }} />
       ))}
     </div>

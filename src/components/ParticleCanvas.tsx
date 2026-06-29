@@ -110,13 +110,13 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
     for (let c = 0; c < 4; c++) {
       const bandStart = c * 1750;
       const corner = corners[c];
-      
+
       // A: Generate edge particles (1312 particles)
       for (let i = 0; i < 1312; i++) {
         const edgeIndex = i % 3;
         const t = randomRange(-1.0, 1.0);
         let x = 0, y = 0, z = 0;
-        
+
         if (edgeIndex === 0) {
           x = t;
           y = corner.y;
@@ -260,10 +260,10 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
 
     // Partition edges into 4 groups of 3 adjacent edges meeting at a vertex:
     const octahedronColorGroups = [
-      [ [4, 0], [4, 1], [4, 2] ], // Group 0 (meets at V4)
-      [ [5, 0], [5, 1], [5, 3] ], // Group 1 (meets at V5)
-      [ [2, 1], [2, 0], [2, 5] ], // Group 2 (meets at V2)
-      [ [3, 0], [3, 1], [3, 4] ]  // Group 3 (meets at V3)
+      [[4, 0], [4, 1], [4, 2]], // Group 0 (meets at V4)
+      [[5, 0], [5, 1], [5, 3]], // Group 1 (meets at V5)
+      [[2, 1], [2, 0], [2, 5]], // Group 2 (meets at V2)
+      [[3, 0], [3, 1], [3, 4]]  // Group 3 (meets at V3)
     ];
 
     const pyrFillIndices: number[] = [];
@@ -392,6 +392,121 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
         z: randomRange(-0.8, 0.8),
       });
     }
+    // Shuffle the scattered coordinates so that colors are randomly mixed and scattered rather than height-banded
+    for (let i = sortedScattered.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const temp = sortedScattered[i];
+      sortedScattered[i] = sortedScattered[j];
+      sortedScattered[j] = temp;
+    }
+
+    // 11. Programmatic 3D Email/Envelope Generator
+    const sortedEnvelope: { x: number; y: number; z: number }[] = new Array(PARTICLE_COUNT);
+    const envFillIndices: number[] = [];
+    const envFillCoordinates: { x: number; y: number; z: number }[] = [];
+
+    // Group 0: Flap Diagonals (\/) - Color 1
+    const group0Segments = [
+      [{ x: -0.7, y: 0.35, z: 0.05 }, { x: 0.0, y: -0.1, z: 0.05 }],
+      [{ x: 0.7, y: 0.35, z: 0.05 }, { x: 0.0, y: -0.1, z: 0.05 }],
+      [{ x: -0.7, y: 0.35, z: -0.05 }, { x: 0.0, y: -0.1, z: -0.05 }],
+      [{ x: 0.7, y: 0.35, z: -0.05 }, { x: 0.0, y: -0.1, z: -0.05 }],
+      [{ x: 0.0, y: -0.1, z: -0.05 }, { x: 0.0, y: -0.1, z: 0.05 }]
+    ];
+
+    // Group 1: Side Verticals (| |) - Color 2
+    const group1Segments = [
+      [{ x: -0.7, y: -0.45, z: 0.05 }, { x: -0.7, y: 0.35, z: 0.05 }],
+      [{ x: 0.7, y: -0.45, z: 0.05 }, { x: 0.7, y: 0.35, z: 0.05 }],
+      [{ x: -0.7, y: -0.45, z: -0.05 }, { x: -0.7, y: 0.35, z: -0.05 }],
+      [{ x: 0.7, y: -0.45, z: -0.05 }, { x: 0.7, y: 0.35, z: -0.05 }]
+    ];
+
+    // Group 2: Top Outline - Color 3
+    const group2Segments = [
+      [{ x: -0.7, y: 0.35, z: 0.05 }, { x: 0.7, y: 0.35, z: 0.05 }],
+      [{ x: -0.7, y: 0.35, z: -0.05 }, { x: 0.7, y: 0.35, z: -0.05 }],
+      [{ x: -0.7, y: 0.35, z: -0.05 }, { x: -0.7, y: 0.35, z: 0.05 }],
+      [{ x: 0.7, y: 0.35, z: -0.05 }, { x: 0.7, y: 0.35, z: 0.05 }]
+    ];
+
+    // Group 3: Bottom Outline - Color 4
+    const group3Segments = [
+      [{ x: -0.7, y: -0.45, z: 0.05 }, { x: 0.7, y: -0.45, z: 0.05 }],
+      [{ x: -0.7, y: -0.45, z: -0.05 }, { x: 0.7, y: -0.45, z: -0.05 }],
+      [{ x: -0.7, y: -0.45, z: -0.05 }, { x: -0.7, y: -0.45, z: 0.05 }],
+      [{ x: 0.7, y: -0.45, z: -0.05 }, { x: 0.7, y: -0.45, z: 0.05 }]
+    ];
+
+    const allGroupSegments = [group0Segments, group1Segments, group2Segments, group3Segments];
+
+    const tiltAngle = (25 * Math.PI) / 180; // 25 degrees
+    const cosTilt = Math.cos(tiltAngle);
+    const sinTilt = Math.sin(tiltAngle);
+
+    for (let c = 0; c < 4; c++) {
+      const bandStart = c * 1750;
+      const segments = allGroupSegments[c];
+
+      // A: Generate outline particles (1312 particles)
+      for (let i = 0; i < 1312; i++) {
+        const segIndex = i % segments.length;
+        const [p1, p2] = segments[segIndex];
+        const t_val = Math.random();
+        let x = p1.x + t_val * (p2.x - p1.x);
+        let y = p1.y + t_val * (p2.y - p1.y);
+        let z = p1.z + t_val * (p2.z - p1.z);
+
+        // Add noise
+        const noise = 0.015;
+        x += randomRange(-noise, noise);
+        y += randomRange(-noise, noise);
+        z += randomRange(-noise, noise);
+
+        // Swap x and z, then apply Y rotation tilt of 30 degrees so it starts rotated
+        sortedEnvelope[bandStart + i] = {
+          x: (z * cosTilt + x * sinTilt) * 0.95,
+          y: y * 0.95,
+          z: (z * sinTilt - x * cosTilt) * 0.95
+        };
+      }
+
+      // B: Generate body/scattered particles (438 particles)
+      for (let i = 1312; i < 1750; i++) {
+        const idx = bandStart + i;
+        envFillIndices.push(idx);
+
+        // Sample inside the envelope box volume
+        let x = randomRange(-0.7, 0.7);
+        let y = randomRange(-0.45, 0.35);
+        let z = randomRange(-0.05, 0.05);
+
+        // Add scattering noise
+        const noise = 0.04;
+        x += randomRange(-noise, noise);
+        y += randomRange(-noise, noise);
+        z += randomRange(-noise, noise);
+
+        envFillCoordinates.push({
+          x: (z * cosTilt + x * sinTilt) * 0.95,
+          y: y * 0.95,
+          z: (z * sinTilt - x * cosTilt) * 0.95
+        });
+      }
+    }
+
+    // Shuffle the fill coordinates so that fill colors are randomly mixed and scattered
+    for (let i = envFillCoordinates.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const temp = envFillCoordinates[i];
+      envFillCoordinates[i] = envFillCoordinates[j];
+      envFillCoordinates[j] = temp;
+    }
+
+    // Put shuffled fill coordinates back into their reserved slots in sortedEnvelope
+    for (let i = 0; i < envFillIndices.length; i++) {
+      sortedEnvelope[envFillIndices[i]] = envFillCoordinates[i];
+    }
 
     // Sort coordinates by Y (bottom-to-top) so colors blend beautifully
     sortedBrain.sort((a, b) => a.y - b.y);
@@ -399,7 +514,6 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
     sortedDNA.sort((a, b) => a.y - b.y);
     sortedTrefoil.sort((a, b) => a.y - b.y);
     sortedAstroid.sort((a, b) => a.y - b.y);
-    sortedScattered.sort((a, b) => a.y - b.y);
 
     // ─── Init Particles ───────────────────────────────────────────────────
     const particles: ParticleData[] = [];
@@ -429,11 +543,17 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
     let activeColors = ["", "", "", ""];
 
     const startTime = Date.now();
+    let lastFrameTime = Date.now();
+    let localEnvTime = 0;
     let animId: number;
 
     function animate() {
       ctx!.clearRect(0, 0, W, H);
-      const elapsed = Date.now() - startTime;
+      const now = Date.now();
+      const delta = now - lastFrameTime;
+      lastFrameTime = now;
+
+      const elapsed = now - startTime;
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
       const scrollHeight =
         document.documentElement.scrollHeight - window.innerHeight;
@@ -515,8 +635,9 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
         { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 240 : 360 }, // Torus (Left, rotated sideways)
         { cx: isMobile ? W * 0.5 : W * 0.72, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 300 : 420 }, // Trefoil Knot (Right)
         { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 300 : 420 }, // Astroid Star (Left)
-        { cx: isMobile ? W * 0.5 : W * 0.5,  cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 380 : 520 }, // Sphere (Center)
-        { cx: isMobile ? W * 0.5 : W * 0.5,  cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 320 : 445 }, // Scattered (Center)
+        { cx: isMobile ? W * 0.5 : W * 0.5, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 380 : 520 }, // Sphere (Center)
+        { cx: isMobile ? W * 0.5 : W * 0.5, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 320 : 445 }, // Scattered (Center)
+        { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 320 : 445 }, // Email Envelope (Left)
       ];
 
       // ─── Math for Multisection Morphing ──────────────────────────────────
@@ -530,10 +651,11 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
         sortedTrefoil,
         sortedAstroid,
         sortedSphere,
-        sortedScattered
+        sortedScattered,
+        sortedEnvelope
       ];
-      const K = shapesList.length; // 10
-      const N = K - 1; // 9
+      const K = shapesList.length; // 11
+      const N = K - 1; // 10
 
       const scaledRatio = scrollRatio * N;
       let index = Math.floor(scaledRatio);
@@ -592,15 +714,34 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
         targetInfluenceX = gyroX;
         targetInfluenceY = gyroY;
       } else if (mouse.active) {
-        targetInfluenceX = ((mouse.x - W / 2) / (W / 2)) * 0.06;
-        targetInfluenceY = ((mouse.y - H / 2) / (H / 2)) * 0.04;
+        targetInfluenceX = ((mouse.x - W / 2) / (W / 2)) * 0.08;
+        targetInfluenceY = ((mouse.y - H / 2) / (H / 2)) * 0.06;
       }
       mouseInfluenceX += (targetInfluenceX - mouseInfluenceX) * 0.05;
       mouseInfluenceY += (targetInfluenceY - mouseInfluenceY) * 0.05;
 
-      const rotateY = 1.60 + time * 0.12 + mouseInfluenceX;
-      const rotateX = 0.25 + Math.sin(time * 0.15) * 0.05 + mouseInfluenceY;
-      const rotateZ = Math.cos(time * 0.12) * 0.03;
+      let envTime = 0;
+      if (index === 9 && t > 0) {
+        localEnvTime += delta;
+        envTime = localEnvTime * 0.00015 * settingsRef.current.autoRotateSpeed;
+      } else {
+        localEnvTime = 0;
+      }
+
+      let activeTimeY = time * 0.12;
+      let activeTimeX = Math.sin(time * 0.15) * 0.05;
+      let activeTimeZ = Math.cos(time * 0.12) * 0.03;
+
+      if (index === 9) {
+        // Interpolate auto-rotation from global time (for Scattered) to local envelope time (starts at 0)
+        activeTimeY = lerp(time * 0.12, envTime * 0.12, t);
+        activeTimeX = lerp(Math.sin(time * 0.15) * 0.05, Math.sin(envTime * 0.15) * 0.05, t);
+        activeTimeZ = lerp(Math.cos(time * 0.12) * 0.03, Math.cos(envTime * 0.12) * 0.03, t);
+      }
+
+      const rotateY = 1.60 + activeTimeY + mouseInfluenceX;
+      const rotateX = 0.25 + activeTimeX + mouseInfluenceY;
+      const rotateZ = activeTimeZ;
 
       // ─── Update Loop ──────────────────────────────────────────────────────
       for (let i = 0; i < currentCount; i++) {
