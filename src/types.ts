@@ -39,7 +39,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
 export const PRESETS: Record<string, Partial<AppSettings>> = {
   neural: {
     interactionMode: "ripple",
-    springStiffness: 0.03,
+    springStiffness: 0.01,
     damping: 0.90,
     interactionForce: 2.0,
     autoRotateSpeed: 1.0,

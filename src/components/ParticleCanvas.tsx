@@ -88,7 +88,7 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
     const sortedSphere: { x: number; y: number; z: number }[] = new Array(PARTICLE_COUNT);
     const sphFillIndices: number[] = [];
     const sphFillCoordinates: { x: number; y: number; z: number }[] = [];
-    const sphereRadius = 0.82;
+    const sphereRadius = 0.45;
 
     const N_lat = 10; // 10 latitude lines
     const N_lon = 12; // 12 longitude lines
