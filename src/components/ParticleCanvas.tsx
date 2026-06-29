@@ -36,15 +36,6 @@ function lerp(start: number, end: number, t: number) {
   return start * (1 - t) + end * t;
 }
 
-function shuffleArray<T>(array: T[]) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    const temp = array[i];
-    array[i] = array[j];
-    array[j] = temp;
-  }
-}
-
 export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const settingsRef = useRef<AppSettings>(settings);
@@ -94,35 +85,107 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
       };
     });
     const sortedSphere = [...rawParticles.sphere].slice(0, PARTICLE_COUNT);
-    shuffleArray(sortedSphere);
-
-    // 1. Programmatic 3D Cube Generator (hollow, with slight organic noise)
-    const sortedCube: { x: number; y: number; z: number }[] = [];
-    for (let i = 0; i < PARTICLE_COUNT; i++) {
-      const face = i % 6;
-      let x = randomRange(-1.0, 1.0);
-      let y = randomRange(-1.0, 1.0);
-      let z = randomRange(-1.0, 1.0);
-      if (face === 0) x = -1.0;
-      else if (face === 1) x = 1.0;
-      else if (face === 2) y = -1.0;
-      else if (face === 3) y = 1.0;
-      else if (face === 4) z = -1.0;
-      else if (face === 5) z = 1.0;
-
-      // Add noise
-      const noise = 0.03;
-      x += randomRange(-noise, noise);
-      y += randomRange(-noise, noise);
-      z += randomRange(-noise, noise);
-
-      sortedCube.push({
-        x: x * 0.42,
-        y: y * 0.42,
-        z: z * 0.42,
-      });
+    // Shuffle the sphere coordinates so that colors are randomly mixed and scattered rather than height-banded
+    for (let i = sortedSphere.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const temp = sortedSphere[i];
+      sortedSphere[i] = sortedSphere[j];
+      sortedSphere[j] = temp;
     }
-    shuffleArray(sortedCube);
+
+    // 1. Programmatic 3D Cube Generator (hollow, with distinct edge outlines and solid-colored edges)
+    const sortedCube: { x: number; y: number; z: number }[] = new Array(PARTICLE_COUNT);
+    const fillIndices: number[] = [];
+    const fillCoordinates: { x: number; y: number; z: number }[] = [];
+
+    // Define 4 alternate (non-adjacent) corners of the cube to assign adjacent edges to colors
+    const corners = [
+      { x: 1.0, y: 1.0, z: 1.0 },   // Corner 0
+      { x: 1.0, y: -1.0, z: -1.0 }, // Corner 1
+      { x: -1.0, y: 1.0, z: -1.0 }, // Corner 2
+      { x: -1.0, y: -1.0, z: 1.0 }  // Corner 3
+    ];
+
+    // Generate edge and fill coordinates
+    for (let c = 0; c < 4; c++) {
+      const bandStart = c * 1750;
+      const corner = corners[c];
+      
+      // A: Generate edge particles (1312 particles)
+      for (let i = 0; i < 1312; i++) {
+        const edgeIndex = i % 3;
+        const t = randomRange(-1.0, 1.0);
+        let x = 0, y = 0, z = 0;
+        
+        if (edgeIndex === 0) {
+          x = t;
+          y = corner.y;
+          z = corner.z;
+        } else if (edgeIndex === 1) {
+          x = corner.x;
+          y = t;
+          z = corner.z;
+        } else {
+          x = corner.x;
+          y = corner.y;
+          z = t;
+        }
+
+        // Add noise
+        const noise = 0.025;
+        x += randomRange(-noise, noise);
+        y += randomRange(-noise, noise);
+        z += randomRange(-noise, noise);
+
+        sortedCube[bandStart + i] = {
+          x: x * 0.42,
+          y: y * 0.42,
+          z: z * 0.42
+        };
+      }
+
+      // B: Generate fill particles (438 particles)
+      for (let i = 1312; i < 1750; i++) {
+        const idx = bandStart + i;
+        fillIndices.push(idx);
+
+        const face = i % 6;
+        let x = randomRange(-1.0, 1.0);
+        let y = randomRange(-1.0, 1.0);
+        let z = randomRange(-1.0, 1.0);
+        if (face === 0) x = -1.0;
+        else if (face === 1) x = 1.0;
+        else if (face === 2) y = -1.0;
+        else if (face === 3) y = 1.0;
+        else if (face === 4) z = -1.0;
+        else if (face === 5) z = 1.0;
+
+        // Add noise
+        const noise = 0.025;
+        x += randomRange(-noise, noise);
+        y += randomRange(-noise, noise);
+        z += randomRange(-noise, noise);
+
+        fillCoordinates.push({
+          x: x * 0.42,
+          y: y * 0.42,
+          z: z * 0.42
+        });
+      }
+    }
+
+    // Shuffle the fill coordinates so that fill colors are randomly mixed and scattered
+    for (let i = fillCoordinates.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const temp = fillCoordinates[i];
+      fillCoordinates[i] = fillCoordinates[j];
+      fillCoordinates[j] = temp;
+    }
+
+    // Put shuffled fill coordinates back into their reserved slots in sortedCube
+    for (let i = 0; i < fillIndices.length; i++) {
+      sortedCube[fillIndices[i]] = fillCoordinates[i];
+    }
 
     // 2. Programmatic 3D Torus Generator (with slight organic noise)
     const sortedTorus: { x: number; y: number; z: number }[] = [];
@@ -144,7 +207,13 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
       // Rotate by 90 degrees around Y-axis sideways (swap x and z)
       sortedTorus.push({ x: z, y: y * 0.95, z: -x });
     }
-    shuffleArray(sortedTorus);
+    // Shuffle the torus coordinates so that colors are randomly mixed and scattered rather than height-banded
+    for (let i = sortedTorus.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const temp = sortedTorus[i];
+      sortedTorus[i] = sortedTorus[j];
+      sortedTorus[j] = temp;
+    }
 
     // 3. Programmatic DNA Double Helix Generator
     const sortedDNA: { x: number; y: number; z: number }[] = [];
@@ -175,34 +244,106 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
       });
     }
 
-    // 4. Programmatic 3D Octahedron/Pyramid Generator
-    const sortedPyramid: { x: number; y: number; z: number }[] = [];
+    // 4. Programmatic 3D Octahedron/Pyramid Generator (with distinct edge outlines and solid-colored edges)
+    const sortedPyramid: { x: number; y: number; z: number }[] = new Array(PARTICLE_COUNT);
     const pyrScale = 0.85;
-    for (let i = 0; i < PARTICLE_COUNT; i++) {
-      const face = i % 8;
-      const xSign = (face & 1) ? 1.0 : -1.0;
-      const ySign = (face & 2) ? 1.0 : -1.0;
-      const zSign = (face & 4) ? 1.0 : -1.0;
-      const A = { x: xSign, y: 0.0, z: 0.0 };
-      const B = { x: 0.0, y: ySign, z: 0.0 };
-      const C = { x: 0.0, y: 0.0, z: zSign };
-      let r1 = Math.random();
-      let r2 = Math.random();
-      if (r1 + r2 > 1.0) {
-        r1 = 1.0 - r1;
-        r2 = 1.0 - r2;
+
+    // Vertices of the Octahedron
+    const vertices = [
+      { x: 1.0, y: 0.0, z: 0.0 },   // V0
+      { x: -1.0, y: 0.0, z: 0.0 },  // V1
+      { x: 0.0, y: 1.0, z: 0.0 },   // V2
+      { x: 0.0, y: -1.0, z: 0.0 },  // V3
+      { x: 0.0, y: 0.0, z: 1.0 },   // V4
+      { x: 0.0, y: 0.0, z: -1.0 }   // V5
+    ];
+
+    // Partition edges into 4 groups of 3 adjacent edges meeting at a vertex:
+    const octahedronColorGroups = [
+      [ [4, 0], [4, 1], [4, 2] ], // Group 0 (meets at V4)
+      [ [5, 0], [5, 1], [5, 3] ], // Group 1 (meets at V5)
+      [ [2, 1], [2, 0], [2, 5] ], // Group 2 (meets at V2)
+      [ [3, 0], [3, 1], [3, 4] ]  // Group 3 (meets at V3)
+    ];
+
+    const pyrFillIndices: number[] = [];
+    const pyrFillCoordinates: { x: number; y: number; z: number }[] = [];
+
+    // Generate edge and fill coordinates for Octahedron
+    for (let c = 0; c < 4; c++) {
+      const bandStart = c * 1750;
+
+      // A: Generate edge particles (1312 particles)
+      for (let i = 0; i < 1312; i++) {
+        const edge = octahedronColorGroups[c][i % 3];
+        const v1 = vertices[edge[0]];
+        const v2 = vertices[edge[1]];
+        const t = Math.random();
+        let x = v1.x + t * (v2.x - v1.x);
+        let y = v1.y + t * (v2.y - v1.y);
+        let z = v1.z + t * (v2.z - v1.z);
+
+        // Add noise
+        const n = 0.025;
+        x += randomRange(-n, n);
+        y += randomRange(-n, n);
+        z += randomRange(-n, n);
+
+        sortedPyramid[bandStart + i] = {
+          x: x * pyrScale,
+          y: y * pyrScale,
+          z: z * pyrScale
+        };
       }
-      let x = A.x + r1 * (B.x - A.x) + r2 * (C.x - A.x);
-      let y = A.y + r1 * (B.y - A.y) + r2 * (C.y - A.y);
-      let z = A.z + r1 * (B.z - A.z) + r2 * (C.z - A.z);
-      const n = 0.02;
-      sortedPyramid.push({
-        x: (x + randomRange(-n, n)) * pyrScale,
-        y: (y + randomRange(-n, n)) * pyrScale,
-        z: (z + randomRange(-n, n)) * pyrScale,
-      });
+
+      // B: Generate fill particles (438 particles)
+      for (let i = 1312; i < 1750; i++) {
+        const idx = bandStart + i;
+        pyrFillIndices.push(idx);
+
+        const face = i % 8;
+        const xSign = (face & 1) ? 1.0 : -1.0;
+        const ySign = (face & 2) ? 1.0 : -1.0;
+        const zSign = (face & 4) ? 1.0 : -1.0;
+        const A = { x: xSign, y: 0.0, z: 0.0 };
+        const B = { x: 0.0, y: ySign, z: 0.0 };
+        const C = { x: 0.0, y: 0.0, z: zSign };
+        let r1 = Math.random();
+        let r2 = Math.random();
+        if (r1 + r2 > 1.0) {
+          r1 = 1.0 - r1;
+          r2 = 1.0 - r2;
+        }
+        let x = A.x + r1 * (B.x - A.x) + r2 * (C.x - A.x);
+        let y = A.y + r1 * (B.y - A.y) + r2 * (C.y - A.y);
+        let z = A.z + r1 * (B.z - A.z) + r2 * (C.z - A.z);
+
+        // Add noise
+        const n = 0.025;
+        x += randomRange(-n, n);
+        y += randomRange(-n, n);
+        z += randomRange(-n, n);
+
+        pyrFillCoordinates.push({
+          x: x * pyrScale,
+          y: y * pyrScale,
+          z: z * pyrScale
+        });
+      }
     }
-    shuffleArray(sortedPyramid);
+
+    // Shuffle the fill coordinates so that fill colors are randomly mixed and scattered
+    for (let i = pyrFillCoordinates.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const temp = pyrFillCoordinates[i];
+      pyrFillCoordinates[i] = pyrFillCoordinates[j];
+      pyrFillCoordinates[j] = temp;
+    }
+
+    // Put shuffled fill coordinates back into their reserved slots in sortedPyramid
+    for (let i = 0; i < pyrFillIndices.length; i++) {
+      sortedPyramid[pyrFillIndices[i]] = pyrFillCoordinates[i];
+    }
 
 
     // 5. Programmatic Trefoil Knot Generator
@@ -220,7 +361,6 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
         z: (z + randomRange(-n, n)) * trefoilScale,
       });
     }
-    shuffleArray(sortedTrefoil);
 
     // 6. Programmatic 3D Astroid Star Generator
     const sortedAstroid: { x: number; y: number; z: number }[] = [];
@@ -257,6 +397,7 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
     sortedBrain.sort((a, b) => a.y - b.y);
     sortedLightbulb.sort((a, b) => a.y - b.y);
     sortedDNA.sort((a, b) => a.y - b.y);
+    sortedTrefoil.sort((a, b) => a.y - b.y);
     sortedAstroid.sort((a, b) => a.y - b.y);
     sortedScattered.sort((a, b) => a.y - b.y);
 
