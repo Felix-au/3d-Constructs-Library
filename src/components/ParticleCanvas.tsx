@@ -85,6 +85,13 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
       };
     });
     const sortedSphere = [...rawParticles.sphere].slice(0, PARTICLE_COUNT);
+    // Shuffle the sphere coordinates so that colors are randomly mixed and scattered rather than height-banded
+    for (let i = sortedSphere.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const temp = sortedSphere[i];
+      sortedSphere[i] = sortedSphere[j];
+      sortedSphere[j] = temp;
+    }
 
     // 1. Programmatic 3D Cube Generator (hollow, with slight organic noise)
     const sortedCube: { x: number; y: number; z: number }[] = [];
@@ -248,7 +255,6 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
     sortedTorus.sort((a, b) => a.y - b.y);
     sortedTrefoil.sort((a, b) => a.y - b.y);
     sortedAstroid.sort((a, b) => a.y - b.y);
-    sortedSphere.sort((a, b) => a.y - b.y);
     sortedScattered.sort((a, b) => a.y - b.y);
 
     // ─── Init Particles ───────────────────────────────────────────────────
