@@ -542,9 +542,8 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
     const spriteSize = 32;
     let activeColors = ["", "", "", ""];
 
-    const startTime = Date.now();
     let lastFrameTime = Date.now();
-    let localEnvTime = 0;
+    const localTimes = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     let animId: number;
 
     function animate() {
@@ -553,7 +552,6 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
       const delta = now - lastFrameTime;
       lastFrameTime = now;
 
-      const elapsed = now - startTime;
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
       const scrollHeight =
         document.documentElement.scrollHeight - window.innerHeight;
@@ -690,9 +688,6 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
       const cy = lerp(conf1.cy, conf2.cy, t);
       const baseScale = lerp(conf1.scale, conf2.scale, t);
 
-      // ─── 3D Rotation angles over time ──────────────────────────────────────
-      const time = elapsed * 0.00015 * settingsRef.current.autoRotateSpeed;
-
       // Track mouse velocity
       if (mouse.active) {
         if (prevMouseX !== -1000) {
@@ -720,28 +715,29 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
       mouseInfluenceX += (targetInfluenceX - mouseInfluenceX) * 0.05;
       mouseInfluenceY += (targetInfluenceY - mouseInfluenceY) * 0.05;
 
-      let envTime = 0;
-      if (index === 9 && t > 0) {
-        localEnvTime += delta;
-        envTime = localEnvTime * 0.00015 * settingsRef.current.autoRotateSpeed;
-      } else {
-        localEnvTime = 0;
+      // Update local timers for all shapes based on active/inactive states
+      for (let i = 0; i < 11; i++) {
+        const active = (i === index && t < 1) || (i === index + 1 && t > 0);
+        if (active) {
+          localTimes[i] += delta;
+        } else {
+          localTimes[i] = 0;
+        }
       }
 
-      let activeTimeY = time * 0.12;
-      let activeTimeX = Math.sin(time * 0.15) * 0.05;
-      let activeTimeZ = Math.cos(time * 0.12) * 0.03;
+      const t1 = localTimes[index] * 0.00015 * settingsRef.current.autoRotateSpeed;
+      const ry1 = 1.60 + t1 * 0.12 + mouseInfluenceX;
+      const rx1 = 0.25 + Math.sin(t1 * 0.15) * 0.05 + mouseInfluenceY;
+      const rz1 = Math.cos(t1 * 0.12) * 0.03;
 
-      if (index === 9) {
-        // Interpolate auto-rotation from global time (for Scattered) to local envelope time (starts at 0)
-        activeTimeY = lerp(time * 0.12, envTime * 0.12, t);
-        activeTimeX = lerp(Math.sin(time * 0.15) * 0.05, Math.sin(envTime * 0.15) * 0.05, t);
-        activeTimeZ = lerp(Math.cos(time * 0.12) * 0.03, Math.cos(envTime * 0.12) * 0.03, t);
-      }
+      const t2 = localTimes[index + 1] * 0.00015 * settingsRef.current.autoRotateSpeed;
+      const ry2 = 1.60 + t2 * 0.12 + mouseInfluenceX;
+      const rx2 = 0.25 + Math.sin(t2 * 0.15) * 0.05 + mouseInfluenceY;
+      const rz2 = Math.cos(t2 * 0.12) * 0.03;
 
-      const rotateY = 1.60 + activeTimeY + mouseInfluenceX;
-      const rotateX = 0.25 + activeTimeX + mouseInfluenceY;
-      const rotateZ = activeTimeZ;
+      const rotateY = lerp(ry1, ry2, t);
+      const rotateX = lerp(rx1, rx2, t);
+      const rotateZ = lerp(rz1, rz2, t);
 
       // ─── Update Loop ──────────────────────────────────────────────────────
       for (let i = 0; i < currentCount; i++) {
