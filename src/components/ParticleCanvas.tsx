@@ -84,10 +84,8 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
         z: ey * sin45 + ez * cos45,
       };
     });
-    // Programmatic 3D Sphere Generator (75% outline as alternating latitude/longitude lines, 25% face/surface fill)
+    // Programmatic 3D Sphere Generator (100% outline as alternating latitude/longitude lines, no face/surface fill)
     const sortedSphere: { x: number; y: number; z: number }[] = new Array(PARTICLE_COUNT);
-    const sphFillIndices: number[] = [];
-    const sphFillCoordinates: { x: number; y: number; z: number }[] = [];
     const sphereRadius = 0.45;
 
     const N_lat = 10; // 10 latitude lines
@@ -96,8 +94,8 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
     for (let c = 0; c < 4; c++) {
       const bandStart = c * 1750;
 
-      // A: Generate outline particles (1312 particles)
-      for (let i = 0; i < 1312; i++) {
+      // Generate all 1750 particles as outlines
+      for (let i = 0; i < 1750; i++) {
         let x = 0, y = 0, z = 0;
 
         if (c === 0 || c === 1) {
@@ -142,46 +140,6 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
           z: z * sphereRadius
         };
       }
-
-      // B: Generate face particles (438 particles)
-      for (let i = 1312; i < 1750; i++) {
-        const idx = bandStart + i;
-        sphFillIndices.push(idx);
-
-        // Uniform spherical surface distribution
-        const theta = Math.random() * Math.PI * 2;
-        const cosPhi = randomRange(-1.0, 1.0);
-        const phi = Math.acos(cosPhi);
-
-        let x = Math.sin(phi) * Math.cos(theta);
-        let y = Math.cos(phi);
-        let z = Math.sin(phi) * Math.sin(theta);
-
-        // Add scattering noise
-        const noise = 0.02;
-        x += randomRange(-noise, noise);
-        y += randomRange(-noise, noise);
-        z += randomRange(-noise, noise);
-
-        sphFillCoordinates.push({
-          x: x * sphereRadius,
-          y: y * sphereRadius,
-          z: z * sphereRadius
-        });
-      }
-    }
-
-    // Shuffle the fill coordinates so that fill colors are randomly mixed and scattered
-    for (let i = sphFillCoordinates.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      const temp = sphFillCoordinates[i];
-      sphFillCoordinates[i] = sphFillCoordinates[j];
-      sphFillCoordinates[j] = temp;
-    }
-
-    // Put shuffled fill coordinates back into their reserved slots in sortedSphere
-    for (let i = 0; i < sphFillIndices.length; i++) {
-      sortedSphere[sphFillIndices[i]] = sphFillCoordinates[i];
     }
 
     // 1. Programmatic 3D Cube Generator (hollow, with distinct edge outlines and solid-colored edges)
