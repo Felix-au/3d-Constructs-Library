@@ -1338,19 +1338,19 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
         { rx: 0,      ry: 0,       rz: 0 }, // 0:  Brain
         { rx: 0,      ry: -0.5236, rz: 0 }, // 1:  Lightbulb
         { rx: 0,      ry: 0,       rz: 0 }, // 2:  DNA
-        { rx: 0,      ry: 0,       rz: 0 }, // 3:  Octahedron
-        { rx: 0.2618, ry: 0.5236,  rz: 0 }, // 4:  Cube
-        { rx: 0,      ry: 0.4363,  rz: 0 }, // 5:  Torus
-        { rx: 0,      ry: 1.7453,  rz: 0 }, // 6:  Trefoil Knot
-        { rx: 0,      ry: 0,       rz: 0 }, // 7:  Astroid
-        { rx: 0,      ry: 0,       rz: 0 }, // 8:  Envelope
-        { rx: 0,      ry: 0.5236,  rz: 0 }, // 9:  Icosahedron
-        { rx: 0,      ry: 0.7854,  rz: 0 }, // 10: Hyperboloid
-        { rx: 0.3491, ry: 1.5708,  rz: 0 }, // 11: Klein Bottle
-        { rx: 0,      ry: 0.5236,  rz: 0 }, // 12: SSD — slight Y rotation
-        { rx: 0,      ry: 0.3927,  rz: 0 }, // 13: GSD — slight Y rotation
-        { rx: 0,      ry: 0.7854,  rz: 0 }, // 14: GD  — 45° Y shows star-web
-        { rx: 0,      ry: 0.5236,  rz: 0 }, // 15: GI  — slight Y rotation
+        { rx: 0,      ry: 0.5236,  rz: 0 }, // 3:  SSD / Nebula Spindle Star
+        { rx: 0,      ry: 0,       rz: 0 }, // 4:  Octahedron
+        { rx: 0.2618, ry: 0.5236,  rz: 0 }, // 5:  Cube
+        { rx: 0,      ry: 0.7854,  rz: 0 }, // 6:  GD / Intersecting Aegis
+        { rx: 0,      ry: 0.4363,  rz: 0 }, // 7:  Torus
+        { rx: 0,      ry: 1.7453,  rz: 0 }, // 8:  Trefoil Knot
+        { rx: 0,      ry: 0.3927,  rz: 0 }, // 9:  GSD / Nova Spire Lattice
+        { rx: 0,      ry: 0,       rz: 0 }, // 10: Astroid Star
+        { rx: 0,      ry: 0,       rz: 0 }, // 11: Envelope
+        { rx: 0,      ry: 0.5236,  rz: 0 }, // 12: GI / Quantum Dual Shell
+        { rx: 0,      ry: 0.5236,  rz: 0 }, // 13: Icosahedron
+        { rx: 0,      ry: 0.7854,  rz: 0 }, // 14: Hyperboloid
+        { rx: 0.3491, ry: 1.5708,  rz: 0 }, // 15: Klein Bottle
         { rx: 0,      ry: 0,       rz: 0 }, // 16: Sphere
         { rx: 0,      ry: 0,       rz: 0 }, // 17: Scattered
       ];
