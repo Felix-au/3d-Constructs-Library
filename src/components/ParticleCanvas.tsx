@@ -1230,23 +1230,23 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
 
       const configs = [
         { cx: isMobile ? W * 0.5 : W * 0.72, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 400 : 550 }, // 0:  Brain (Right, layout-left)
-        { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 320 : 445 }, // 1:  Lightbulb (Left, layout-right)
+        { cx: isMobile ? W * 0.5 : W * 0.32, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 320 : 445 }, // 1:  Lightbulb (Left, layout-right)
         { cx: isMobile ? W * 0.5 : W * 0.72, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 300 : 420 }, // 2:  DNA Helix (Right, layout-left)
-        { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 372 : 528 }, // 3:  SSD / Nebula Spindle Star (Left, layout-right)
+        { cx: isMobile ? W * 0.5 : W * 0.32, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 372 : 528 }, // 3:  SSD / Nebula Spindle Star (Left, layout-right)
         { cx: isMobile ? W * 0.5 : W * 0.72, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 300 : 420 }, // 4:  Octahedron (Right, layout-left)
-        { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 220 : 330 }, // 5:  Cube (Left, layout-right)
+        { cx: isMobile ? W * 0.5 : W * 0.32, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 220 : 330 }, // 5:  Cube (Left, layout-right)
         { cx: isMobile ? W * 0.5 : W * 0.72, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 360 : 528 }, // 6:  GD / Intersecting Aegis (Right, layout-left)
-        { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 240 : 360 }, // 7:  Torus (Left, layout-right)
+        { cx: isMobile ? W * 0.5 : W * 0.32, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 240 : 360 }, // 7:  Torus (Left, layout-right)
         { cx: isMobile ? W * 0.5 : W * 0.72, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 300 : 420 }, // 8:  Trefoil Knot (Right, layout-left)
-        { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 360 : 525 }, // 9:  GSD / Nova Spire Lattice (Left, layout-right)
+        { cx: isMobile ? W * 0.5 : W * 0.32, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 360 : 525 }, // 9:  GSD / Nova Spire Lattice (Left, layout-right)
         { cx: isMobile ? W * 0.5 : W * 0.72, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 300 : 420 }, // 10: Astroid Star (Right, layout-left)
-        { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 320 : 445 }, // 11: Envelope (Left, layout-right)
+        { cx: isMobile ? W * 0.5 : W * 0.32, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 320 : 445 }, // 11: Envelope (Left, layout-right)
         { cx: isMobile ? W * 0.5 : W * 0.72, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 363 : 522 }, // 12: GI / Quantum Dual Shell (Right, layout-left)
-        { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 340 : 490 }, // 13: Icosahedron (Left, layout-right)
+        { cx: isMobile ? W * 0.5 : W * 0.32, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 340 : 490 }, // 13: Icosahedron (Left, layout-right)
         { cx: isMobile ? W * 0.5 : W * 0.72, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 280 : 400 }, // 14: Hyperboloid (Right, layout-left)
-        { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 260 : 380 }, // 15: Klein Bottle (Left, layout-right)
-        { cx: isMobile ? W * 0.5 : W * 0.5, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 380 : 520 }, // 16: Sphere (Center)
-        { cx: isMobile ? W * 0.5 : W * 0.5, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 320 : 445 }, // 17: Scattered (Center)
+        { cx: isMobile ? W * 0.5 : W * 0.32, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 260 : 380 }, // 15: Klein Bottle (Left, layout-right)
+        { cx: isMobile ? W * 0.5 : W * 0.5,  cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 380 : 520 }, // 16: Sphere (Center)
+        { cx: isMobile ? W * 0.5 : W * 0.5,  cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 320 : 445 }, // 17: Scattered (Center)
       ];
 
       // ─── Math for Multisection Morphing ──────────────────────────────────
