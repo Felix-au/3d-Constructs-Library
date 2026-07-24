@@ -75,8 +75,15 @@ html.scroll-snap .section {
 
 .section-content {
   max-width: 550px;
-  opacity: 0.9;
+  opacity: 0;
+  transform: translateY(30px);
   transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease;
+  pointer-events: auto;
+}
+
+.section-content.active {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* Layout variants */

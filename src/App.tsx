@@ -3,16 +3,64 @@ import ParticleCanvas from "./components/ParticleCanvas";
 import SettingsPanel from "./components/SettingsPanel";
 import { type AppSettings, DEFAULT_SETTINGS } from "./types";
 
+const shapesMetadata = [
+  "Synaptic Brain",
+  "Innovating Lightbulb",
+  "DNA Double Helix",
+  "Structured Octahedron",
+  "Geometric Cube",
+  "Flowing Torus",
+  "Torus Trefoil Knot",
+  "Astroid Star",
+  "Email Envelope",
+  "Holistic Sphere",
+  "Cosmic Scattered",
+];
+
+const shapeDescriptions = [
+  "A neural network simulation representing cognitive synapse firing and complex cerebral connections.",
+  "A glowing outline of human invention, mapping creative energy into structured particles.",
+  "The genetic blueprint of life, represented as dual-entwined spirals in continuous rotation.",
+  "An eight-faced regular solid mapping symmetrical spatial geometry in three dimensions.",
+  "A foundational three-dimensional shape demonstrating rigid linear perspective and vertex structures.",
+  "A smooth ring-shaped mathematical surface showcasing continuous particle flow along its contours.",
+  "An intricate mathematical knot representing advanced topological looping in 3D space.",
+  "A sharp, four-cusped hypocycloid curve forming a star-shaped generative particle grid.",
+  "A digital communication icon modeled as a planar net projected into three-dimensional coordinates.",
+  "A perfect three-dimensional sphere rendered as alternating latitude and longitude orbital outlines.",
+  "A chaotic dispersion of stellar dust transitioning into a beautiful entropy-driven cloud."
+];
+
+const layoutClasses = [
+  "layout-left",   // 0: Brain
+  "layout-right",  // 1: Lightbulb
+  "layout-left",   // 2: DNA
+  "layout-right",  // 3: Octahedron
+  "layout-left",   // 4: Cube
+  "layout-right",  // 5: Torus
+  "layout-left",   // 6: Trefoil Knot
+  "layout-right",  // 7: Astroid
+  "layout-right",  // 8: Envelope
+  "layout-center", // 9: Sphere
+  "layout-center"  // 10: Scattered
+];
+
 export default function App() {
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [activeSection, setActiveSection] = useState(0);
 
-  // Sync settings (theme and scroll snapping) to HTML root classes
+  // Sync settings (theme and scroll snapping) to HTML root classes & theme-color meta tag
   useEffect(() => {
     const root = document.documentElement;
     root.classList.toggle("theme-white", settings.theme === "white");
     root.classList.toggle("scroll-snap", settings.scrollSnapEnabled);
+
+    // Update meta theme-color tag dynamically based on the active theme
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    if (metaTheme) {
+      metaTheme.setAttribute("content", settings.theme === "white" ? "#ffffff" : "#0d9488");
+    }
   }, [settings.theme, settings.scrollSnapEnabled]);
 
   // Track scroll position to update active dot indicator
@@ -34,6 +82,49 @@ export default function App() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Handle URL hash on initial load
+  useEffect(() => {
+    const handleInitialHash = () => {
+      const hash = window.location.hash.slice(1);
+      if (!hash) return;
+      
+      const index = shapesMetadata.findIndex(
+        (name) => name.toLowerCase().replace(/ /g, "-") === hash
+      );
+      
+      if (index !== -1) {
+        setTimeout(() => {
+          scrollToSection(index);
+        }, 100);
+      }
+    };
+
+    handleInitialHash();
+  }, []);
+
+  // Dynamically update document title, meta description, and URL hash as user scrolls
+  useEffect(() => {
+    const activeShape = shapesMetadata[activeSection];
+    const activeDesc = shapeDescriptions[activeSection] || "";
+    const hash = activeShape.toLowerCase().replace(/ /g, "-");
+
+    // Dynamic Title
+    document.title = `${activeShape} - 3D Constructs`;
+
+    // Dynamic Description
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute("content", activeDesc);
+    }
+
+    // Bidirectional Hash Sync
+    if (window.location.hash !== `#${hash}`) {
+      const url = new URL(window.location.href);
+      url.hash = hash;
+      window.history.replaceState(null, "", url.toString());
+    }
+  }, [activeSection]);
+
   const scrollToSection = (index: number) => {
     const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
     const targetScroll = (index / 10) * scrollHeight;
@@ -42,20 +133,6 @@ export default function App() {
       behavior: "smooth",
     });
   };
-
-  const shapesMetadata = [
-    "Synaptic Brain",
-    "Innovating Lightbulb",
-    "DNA Double Helix",
-    "Structured Octahedron",
-    "Geometric Cube",
-    "Flowing Torus",
-    "Torus Trefoil Knot",
-    "Astroid Star",
-    "Email Envelope",
-    "Holistic Sphere",
-    "Cosmic Scattered",
-  ];
 
   return (
     <div style={{ minHeight: "1100vh", position: "relative" }}>
@@ -101,14 +178,22 @@ export default function App() {
         onToggle={() => setIsSettingsOpen(false)}
       />
 
-      {/* Empty snap target sections (keeps scroll snap functionality and enables fall-through clicks) */}
+      {/* Semantic Sections containing Headings and Descriptions */}
       {shapesMetadata.map((shapeName, index) => (
         <section
           key={index}
           id={shapeName.toLowerCase().replace(/ /g, "-")}
-          className="section"
+          className={`section ${layoutClasses[index]}`}
           style={{ pointerEvents: "none" }}
-        />
+        >
+          <div 
+            className={`section-content ${activeSection === index ? "active" : ""}`}
+            style={{ pointerEvents: "auto" }}
+          >
+            <h1>{shapeName}</h1>
+            <p>{shapeDescriptions[index]}</p>
+          </div>
+        </section>
       ))}
     </div>
   );
