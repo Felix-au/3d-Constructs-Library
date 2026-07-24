@@ -553,8 +553,8 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
       const sorted: number[] = [neighbors[0]];
       let current = neighbors[0];
       while (sorted.length < 5) {
-        const next = neighbors.find(n => 
-          !sorted.includes(n) && 
+        const next = neighbors.find(n =>
+          !sorted.includes(n) &&
           icoEdges.some(e => (e[0] === current && e[1] === n) || (e[0] === n && e[1] === current))
         );
         if (next !== undefined) {
@@ -680,27 +680,27 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
     const icoScale = 0.65;
     const icoLen = Math.sqrt(1 + phi_ico * phi_ico);
     const icoVerts = [
-      { x: 0,                   y:  1 / icoLen,           z:  phi_ico / icoLen }, // 0
-      { x: 0,                   y: -1 / icoLen,           z:  phi_ico / icoLen }, // 1
-      { x: 0,                   y:  1 / icoLen,           z: -phi_ico / icoLen }, // 2
-      { x: 0,                   y: -1 / icoLen,           z: -phi_ico / icoLen }, // 3
-      { x:  1 / icoLen,         y:  phi_ico / icoLen,     z: 0                 }, // 4
-      { x: -1 / icoLen,         y:  phi_ico / icoLen,     z: 0                 }, // 5
-      { x:  1 / icoLen,         y: -phi_ico / icoLen,     z: 0                 }, // 6
-      { x: -1 / icoLen,         y: -phi_ico / icoLen,     z: 0                 }, // 7
-      { x:  phi_ico / icoLen,   y: 0,                     z:  1 / icoLen       }, // 8
-      { x: -phi_ico / icoLen,   y: 0,                     z:  1 / icoLen       }, // 9
-      { x:  phi_ico / icoLen,   y: 0,                     z: -1 / icoLen       }, // 10
-      { x: -phi_ico / icoLen,   y: 0,                     z: -1 / icoLen       }, // 11
+      { x: 0, y: 1 / icoLen, z: phi_ico / icoLen }, // 0
+      { x: 0, y: -1 / icoLen, z: phi_ico / icoLen }, // 1
+      { x: 0, y: 1 / icoLen, z: -phi_ico / icoLen }, // 2
+      { x: 0, y: -1 / icoLen, z: -phi_ico / icoLen }, // 3
+      { x: 1 / icoLen, y: phi_ico / icoLen, z: 0 }, // 4
+      { x: -1 / icoLen, y: phi_ico / icoLen, z: 0 }, // 5
+      { x: 1 / icoLen, y: -phi_ico / icoLen, z: 0 }, // 6
+      { x: -1 / icoLen, y: -phi_ico / icoLen, z: 0 }, // 7
+      { x: phi_ico / icoLen, y: 0, z: 1 / icoLen }, // 8
+      { x: -phi_ico / icoLen, y: 0, z: 1 / icoLen }, // 9
+      { x: phi_ico / icoLen, y: 0, z: -1 / icoLen }, // 10
+      { x: -phi_ico / icoLen, y: 0, z: -1 / icoLen }, // 11
     ];
     const icoEdges = [
-      [0,1],[0,4],[0,5],[0,8],[0,9],
-      [1,6],[1,7],[1,8],[1,9],
-      [2,3],[2,4],[2,5],[2,10],[2,11],
-      [3,6],[3,7],[3,10],[3,11],
-      [4,8],[4,10],[5,9],[5,11],
-      [6,8],[6,10],
-      [7,9],[7,11],[8,10],[9,11],[6,7],[4,5]
+      [0, 1], [0, 4], [0, 5], [0, 8], [0, 9],
+      [1, 6], [1, 7], [1, 8], [1, 9],
+      [2, 3], [2, 4], [2, 5], [2, 10], [2, 11],
+      [3, 6], [3, 7], [3, 10], [3, 11],
+      [4, 8], [4, 10], [5, 9], [5, 11],
+      [6, 8], [6, 10],
+      [7, 9], [7, 11], [8, 10], [9, 11], [6, 7], [4, 5]
     ];
     // Programmatically discover the 20 faces of the icosahedron
     const icoFaces: number[][] = [];
@@ -778,55 +778,55 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
 
     // 12 normalised icosahedral vertices (used by SSD, GD, GI) as {x,y,z}
     const kpIco = [
-      { x: 0,               y:  1 / kp_icoR,      z:  kp_phi / kp_icoR },  // 0
-      { x: 0,               y:  1 / kp_icoR,      z: -kp_phi / kp_icoR },  // 1
-      { x: 0,               y: -1 / kp_icoR,      z:  kp_phi / kp_icoR },  // 2
-      { x: 0,               y: -1 / kp_icoR,      z: -kp_phi / kp_icoR },  // 3
-      { x:  1 / kp_icoR,    y:  kp_phi / kp_icoR, z: 0                 },  // 4
-      { x:  1 / kp_icoR,    y: -kp_phi / kp_icoR, z: 0                 },  // 5
-      { x: -1 / kp_icoR,    y:  kp_phi / kp_icoR, z: 0                 },  // 6
-      { x: -1 / kp_icoR,    y: -kp_phi / kp_icoR, z: 0                 },  // 7
-      { x:  kp_phi / kp_icoR, y: 0,               z:  1 / kp_icoR      },  // 8
-      { x:  kp_phi / kp_icoR, y: 0,               z: -1 / kp_icoR      },  // 9
-      { x: -kp_phi / kp_icoR, y: 0,               z:  1 / kp_icoR      },  // 10
-      { x: -kp_phi / kp_icoR, y: 0,               z: -1 / kp_icoR      },  // 11
+      { x: 0, y: 1 / kp_icoR, z: kp_phi / kp_icoR },  // 0
+      { x: 0, y: 1 / kp_icoR, z: -kp_phi / kp_icoR },  // 1
+      { x: 0, y: -1 / kp_icoR, z: kp_phi / kp_icoR },  // 2
+      { x: 0, y: -1 / kp_icoR, z: -kp_phi / kp_icoR },  // 3
+      { x: 1 / kp_icoR, y: kp_phi / kp_icoR, z: 0 },  // 4
+      { x: 1 / kp_icoR, y: -kp_phi / kp_icoR, z: 0 },  // 5
+      { x: -1 / kp_icoR, y: kp_phi / kp_icoR, z: 0 },  // 6
+      { x: -1 / kp_icoR, y: -kp_phi / kp_icoR, z: 0 },  // 7
+      { x: kp_phi / kp_icoR, y: 0, z: 1 / kp_icoR },  // 8
+      { x: kp_phi / kp_icoR, y: 0, z: -1 / kp_icoR },  // 9
+      { x: -kp_phi / kp_icoR, y: 0, z: 1 / kp_icoR },  // 10
+      { x: -kp_phi / kp_icoR, y: 0, z: -1 / kp_icoR },  // 11
     ];
 
     // 20 normalised dodecahedral vertices (used by GSD) as {x,y,z}
     const kpDod = [
-      { x:  1/kp_dodR,  y:  1/kp_dodR,  z:  1/kp_dodR},   // 0  C0
-      { x:  1/kp_dodR,  y:  1/kp_dodR,  z: -1/kp_dodR},   // 1  C1
-      { x:  1/kp_dodR,  y: -1/kp_dodR,  z:  1/kp_dodR},   // 2  C2
-      { x:  1/kp_dodR,  y: -1/kp_dodR,  z: -1/kp_dodR},   // 3  C3
-      { x: -1/kp_dodR,  y:  1/kp_dodR,  z:  1/kp_dodR},   // 4  C4
-      { x: -1/kp_dodR,  y:  1/kp_dodR,  z: -1/kp_dodR},   // 5  C5
-      { x: -1/kp_dodR,  y: -1/kp_dodR,  z:  1/kp_dodR},   // 6  C6
-      { x: -1/kp_dodR,  y: -1/kp_dodR,  z: -1/kp_dodR},   // 7  C7
-      { x: 0,               y:  kp_inv / kp_dodR,  z:  kp_phi / kp_dodR},   // 8  Z0
-      { x: 0,               y:  kp_inv / kp_dodR,  z: -kp_phi / kp_dodR},   // 9  Z1
-      { x: 0,               y: -kp_inv / kp_dodR,  z:  kp_phi / kp_dodR},   // 10 Z2
-      { x: 0,               y: -kp_inv / kp_dodR,  z: -kp_phi / kp_dodR},   // 11 Z3
-      { x:  kp_inv / kp_dodR,  y:  kp_phi / kp_dodR, z: 0             },  // 12 X0
-      { x:  kp_inv / kp_dodR,  y: -kp_phi / kp_dodR, z: 0             },  // 13 X1
-      { x: -kp_inv / kp_dodR,  y:  kp_phi / kp_dodR, z: 0             },  // 14 X2
-      { x: -kp_inv / kp_dodR,  y: -kp_phi / kp_dodR, z: 0             },  // 15 X3
-      { x:  kp_phi / kp_dodR,  y: 0,               z:  kp_inv / kp_dodR },  // 16 Y0
-      { x:  kp_phi / kp_dodR,  y: 0,               z: -kp_inv / kp_dodR },  // 17 Y1
-      { x: -kp_phi / kp_dodR,  y: 0,               z:  kp_inv / kp_dodR },  // 18 Y2
-      { x: -kp_phi / kp_dodR,  y: 0,               z: -kp_inv / kp_dodR },  // 19 Y3
+      { x: 1 / kp_dodR, y: 1 / kp_dodR, z: 1 / kp_dodR },   // 0  C0
+      { x: 1 / kp_dodR, y: 1 / kp_dodR, z: -1 / kp_dodR },   // 1  C1
+      { x: 1 / kp_dodR, y: -1 / kp_dodR, z: 1 / kp_dodR },   // 2  C2
+      { x: 1 / kp_dodR, y: -1 / kp_dodR, z: -1 / kp_dodR },   // 3  C3
+      { x: -1 / kp_dodR, y: 1 / kp_dodR, z: 1 / kp_dodR },   // 4  C4
+      { x: -1 / kp_dodR, y: 1 / kp_dodR, z: -1 / kp_dodR },   // 5  C5
+      { x: -1 / kp_dodR, y: -1 / kp_dodR, z: 1 / kp_dodR },   // 6  C6
+      { x: -1 / kp_dodR, y: -1 / kp_dodR, z: -1 / kp_dodR },   // 7  C7
+      { x: 0, y: kp_inv / kp_dodR, z: kp_phi / kp_dodR },   // 8  Z0
+      { x: 0, y: kp_inv / kp_dodR, z: -kp_phi / kp_dodR },   // 9  Z1
+      { x: 0, y: -kp_inv / kp_dodR, z: kp_phi / kp_dodR },   // 10 Z2
+      { x: 0, y: -kp_inv / kp_dodR, z: -kp_phi / kp_dodR },   // 11 Z3
+      { x: kp_inv / kp_dodR, y: kp_phi / kp_dodR, z: 0 },  // 12 X0
+      { x: kp_inv / kp_dodR, y: -kp_phi / kp_dodR, z: 0 },  // 13 X1
+      { x: -kp_inv / kp_dodR, y: kp_phi / kp_dodR, z: 0 },  // 14 X2
+      { x: -kp_inv / kp_dodR, y: -kp_phi / kp_dodR, z: 0 },  // 15 X3
+      { x: kp_phi / kp_dodR, y: 0, z: kp_inv / kp_dodR },  // 16 Y0
+      { x: kp_phi / kp_dodR, y: 0, z: -kp_inv / kp_dodR },  // 17 Y1
+      { x: -kp_phi / kp_dodR, y: 0, z: kp_inv / kp_dodR },  // 18 Y2
+      { x: -kp_phi / kp_dodR, y: 0, z: -kp_inv / kp_dodR },  // 19 Y3
     ];
 
     // SSD and GD share edges
     const ssdEdges: number[][] = [
-      [0,1],[0,5],[0,7],[0,9],[0,11],
-      [1,5],[1,7],[1,8],[1,10],
-      [2,3],[2,4],[2,6],[2,9],[2,11],
-      [3,4],[3,6],[3,8],[3,10],
-      [4,5],[4,10],[4,11],
-      [5,10],[5,11],
-      [6,7],[6,8],[6,9],
-      [7,8],[7,9],
-      [8,10],[9,11],
+      [0, 1], [0, 5], [0, 7], [0, 9], [0, 11],
+      [1, 5], [1, 7], [1, 8], [1, 10],
+      [2, 3], [2, 4], [2, 6], [2, 9], [2, 11],
+      [3, 4], [3, 6], [3, 8], [3, 10],
+      [4, 5], [4, 10], [4, 11],
+      [5, 10], [5, 11],
+      [6, 7], [6, 8], [6, 9],
+      [7, 8], [7, 9],
+      [8, 10], [9, 11],
     ];
 
     // Find neighbors of each vertex in the icosahedron to form faces for SSD and GD
@@ -846,11 +846,11 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
 
     // GSD edges
     const gsdEdges: number[][] = [
-      [0,8],[0,12],[0,16],  [1,9],[1,12],[1,17],  [2,10],[2,13],
-      [2,16],[3,11],[3,13],[3,17],[4,8],[4,14],[4,18],
-      [5,9],[5,14],[5,19],[6,10],[6,15],[6,18],[7,11],
-      [7,15],[7,19],
-      [8,10],[9,11],[12,14],[13,15],[16,17],[18,19],
+      [0, 8], [0, 12], [0, 16], [1, 9], [1, 12], [1, 17], [2, 10], [2, 13],
+      [2, 16], [3, 11], [3, 13], [3, 17], [4, 8], [4, 14], [4, 18],
+      [5, 9], [5, 14], [5, 19], [6, 10], [6, 15], [6, 18], [7, 11],
+      [7, 15], [7, 19],
+      [8, 10], [9, 11], [12, 14], [13, 15], [16, 17], [18, 19],
     ];
 
     // Find GSD faces (12 coplanar faces of dodecahedron)
@@ -870,7 +870,7 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
           if (len < 1e-5) continue;
           const ndx = nx / len, ndy = ny / len, ndz = nz / len;
           const d = ndx * vi.x + ndy * vi.y + ndz * vi.z;
-          
+
           const planeVerts: number[] = [i, j, k];
           for (let m = 0; m < 20; m++) {
             if (m === i || m === j || m === k) continue;
@@ -880,10 +880,10 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
               planeVerts.push(m);
             }
           }
-          
+
           if (planeVerts.length === 5) {
             const sortedFace = [...planeVerts].sort((a, b) => a - b);
-            if (!gsdFaces.some(f => [...f].sort((a,b)=>a-b).join(',') === sortedFace.join(','))) {
+            if (!gsdFaces.some(f => [...f].sort((a, b) => a - b).join(',') === sortedFace.join(','))) {
               gsdFaces.push(sortFaceCircular(planeVerts, kpDod));
             }
           }
@@ -938,9 +938,9 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
     const sortedGI: { x: number; y: number; z: number }[] = new Array(7000);
     const giNoise = 0.012;
 
-    const giOuterEdgeCounts = [117,117,117,117,117,117,117,117,117,117,116,116,116,116,116]; // sum = 1750
+    const giOuterEdgeCounts = [117, 117, 117, 117, 117, 117, 117, 117, 117, 117, 116, 116, 116, 116, 116]; // sum = 1750
     let giOffset = 0;
-    
+
     // Outer Shell Color 0 (edges 0 to 14)
     for (let e = 0; e < 15; e++) {
       const edge = ssdEdges[e];
@@ -956,7 +956,7 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
         };
       }
     }
-    
+
     // Outer Shell Color 1 (edges 15 to 29)
     for (let e = 0; e < 15; e++) {
       const edge = ssdEdges[15 + e];
@@ -988,7 +988,7 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
         };
       }
     }
-    
+
     // Inner Shell Color 3 (edges 15 to 29)
     for (let e = 0; e < 15; e++) {
       const edge = ssdEdges[15 + e];
@@ -1245,8 +1245,8 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
         { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 340 : 490 }, // 13: Icosahedron (Left, layout-right)
         { cx: isMobile ? W * 0.5 : W * 0.72, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 280 : 400 }, // 14: Hyperboloid (Right, layout-left)
         { cx: isMobile ? W * 0.5 : W * 0.28, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 260 : 380 }, // 15: Klein Bottle (Left, layout-right)
-        { cx: isMobile ? W * 0.5 : W * 0.5,  cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 380 : 520 }, // 16: Sphere (Center)
-        { cx: isMobile ? W * 0.5 : W * 0.5,  cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 320 : 445 }, // 17: Scattered (Center)
+        { cx: isMobile ? W * 0.5 : W * 0.5, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 380 : 520 }, // 16: Sphere (Center)
+        { cx: isMobile ? W * 0.5 : W * 0.5, cy: isMobile ? H * 0.35 : H * 0.5, scale: isMobile ? 320 : 445 }, // 17: Scattered (Center)
       ];
 
       // ─── Math for Multisection Morphing ──────────────────────────────────
@@ -1327,32 +1327,32 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
         targetInfluenceX = gyroX;
         targetInfluenceY = gyroY;
       } else if (mouse.active) {
-        targetInfluenceX = ((mouse.x - W / 2) / (W / 2)) * 0.12;
-        targetInfluenceY = ((mouse.y - H / 2) / (H / 2)) * 0.09;
+        targetInfluenceX = ((mouse.x - W / 2) / (W / 2)) * 0.30;
+        targetInfluenceY = ((mouse.y - H / 2) / (H / 2)) * 0.15;
       }
       mouseInfluenceX += (targetInfluenceX - mouseInfluenceX) * 0.05;
       mouseInfluenceY += (targetInfluenceY - mouseInfluenceY) * 0.05;
 
       // Offsets for [rotateX, rotateY, rotateZ] for each of the 18 shapes:
       const shapeOffsets = [
-        { rx: 0,      ry: 0,       rz: 0 }, // 0:  Brain
-        { rx: 0,      ry: -0.5236, rz: 0 }, // 1:  Lightbulb
-        { rx: 0,      ry: 0,       rz: 0 }, // 2:  DNA
-        { rx: 0,      ry: 0.5236,  rz: 0 }, // 3:  SSD / Nebula Spindle Star
-        { rx: 0,      ry: 0,       rz: 0 }, // 4:  Octahedron
-        { rx: 0.2618, ry: 0.5236,  rz: 0 }, // 5:  Cube
-        { rx: 0,      ry: 0.7854,  rz: 0 }, // 6:  GD / Intersecting Aegis
-        { rx: 0,      ry: 0.4363,  rz: 0 }, // 7:  Torus
-        { rx: 0,      ry: 1.7453,  rz: 0 }, // 8:  Trefoil Knot
-        { rx: 0,      ry: 0.3927,  rz: 0 }, // 9:  GSD / Nova Spire Lattice
-        { rx: 0,      ry: 0,       rz: 0 }, // 10: Astroid Star
-        { rx: 0,      ry: 0,       rz: 0 }, // 11: Envelope
-        { rx: 0,      ry: 0.5236,  rz: 0 }, // 12: GI / Quantum Dual Shell
-        { rx: 0,      ry: 0.5236,  rz: 0 }, // 13: Icosahedron
-        { rx: 0,      ry: 0.7854,  rz: 0 }, // 14: Hyperboloid
-        { rx: 0.3491, ry: 1.5708,  rz: 0 }, // 15: Klein Bottle
-        { rx: 0,      ry: 0,       rz: 0 }, // 16: Sphere
-        { rx: 0,      ry: 0,       rz: 0 }, // 17: Scattered
+        { rx: 0, ry: 0, rz: 0 }, // 0:  Brain
+        { rx: 0, ry: -0.5236, rz: 0 }, // 1:  Lightbulb
+        { rx: 0, ry: 0, rz: 0 }, // 2:  DNA
+        { rx: 0, ry: 0.5236, rz: 0 }, // 3:  SSD / Nebula Spindle Star
+        { rx: 0, ry: 0, rz: 0 }, // 4:  Octahedron
+        { rx: 0.2618, ry: 0.5236, rz: 0 }, // 5:  Cube
+        { rx: 0, ry: 0.7854, rz: 0 }, // 6:  GD / Intersecting Aegis
+        { rx: 0, ry: 0.4363, rz: 0 }, // 7:  Torus
+        { rx: 0, ry: 1.7453, rz: 0 }, // 8:  Trefoil Knot
+        { rx: 0, ry: 0.3927, rz: 0 }, // 9:  GSD / Nova Spire Lattice
+        { rx: 0, ry: 0, rz: 0 }, // 10: Astroid Star
+        { rx: 0, ry: 0, rz: 0 }, // 11: Envelope
+        { rx: 0, ry: 0.5236, rz: 0 }, // 12: GI / Quantum Dual Shell
+        { rx: 0, ry: 0.5236, rz: 0 }, // 13: Icosahedron
+        { rx: 0, ry: 0.7854, rz: 0 }, // 14: Hyperboloid
+        { rx: 0.3491, ry: 1.5708, rz: 0 }, // 15: Klein Bottle
+        { rx: 0, ry: 0, rz: 0 }, // 16: Sphere
+        { rx: 0, ry: 0, rz: 0 }, // 17: Scattered
       ];
 
       // Update local timers for all shapes based on active/inactive states
@@ -1468,14 +1468,30 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
         }
       }
 
+      // ─── Render circular and vector particles with hover highlight ────────
+      const hoveredParticles: { p: ParticleData; size: number; colorHex: string }[] = [];
+      const hoverRadius = settingsRef.current.interactionRadius;
+
       // ─── Render circular particles (spheres sprites) ──────────────────────
       for (let i = 0; i < currentCount; i++) {
         const p = particles[i];
         if (p.shape !== "circle") continue;
 
-        ctx!.globalAlpha = p.opacity * settingsRef.current.particleOpacity;
+        // Proximity check for hover highlight
+        const dx = p.x - mouse.x;
+        const dy = p.y - mouse.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const isHovered = mouse.active && dist < hoverRadius && settingsRef.current.interactionMode !== "disabled";
+
         const size = p.size * p.scaleFactor * sizeMultiplier;
         const colorHex = currentColors[p.colorIndex];
+
+        if (isHovered) {
+          hoveredParticles.push({ p, size: size * 1.5, colorHex });
+          continue; // Draw in post-processing glow pass
+        }
+
+        ctx!.globalAlpha = p.opacity * settingsRef.current.particleOpacity;
         const sprite = sprites[colorHex];
         if (sprite) {
           ctx!.drawImage(
@@ -1504,9 +1520,20 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
             const p = particles[i];
             if (p.colorIndex !== c || p.shape !== shape) continue;
 
-            const size = p.size * p.scaleFactor * sizeMultiplier;
-            const halfSize = size / 2;
+            // Proximity check for hover highlight
+            const dx = p.x - mouse.x;
+            const dy = p.y - mouse.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const isHovered = mouse.active && dist < hoverRadius && settingsRef.current.interactionMode !== "disabled";
 
+            const size = p.size * p.scaleFactor * sizeMultiplier;
+
+            if (isHovered) {
+              hoveredParticles.push({ p, size: size * 1.5, colorHex });
+              continue; // Draw in post-processing glow pass
+            }
+
+            const halfSize = size / 2;
             switch (shape) {
               case "triangle":
                 ctx!.moveTo(p.x, p.y - halfSize);
@@ -1529,6 +1556,55 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
 
           ctx!.fill();
         });
+      }
+
+      // ─── Render Hovered Particles Pass (1.5x size + Glow) ──────────────────
+      if (hoveredParticles.length > 0) {
+        ctx!.save();
+        for (const item of hoveredParticles) {
+          const { p, size, colorHex } = item;
+
+          ctx!.shadowColor = colorHex;
+          ctx!.shadowBlur = 15;
+          ctx!.globalAlpha = Math.min(1.0, p.opacity * settingsRef.current.particleOpacity * 1.3);
+
+          if (p.shape === "circle") {
+            const sprite = sprites[colorHex];
+            if (sprite) {
+              ctx!.drawImage(
+                sprite,
+                p.x - size / 2,
+                p.y - size / 2,
+                size,
+                size
+              );
+            }
+          } else {
+            ctx!.fillStyle = colorHex;
+            ctx!.beginPath();
+            const halfSize = size / 2;
+            switch (p.shape) {
+              case "triangle":
+                ctx!.moveTo(p.x, p.y - halfSize);
+                ctx!.lineTo(p.x - halfSize, p.y + halfSize);
+                ctx!.lineTo(p.x + halfSize, p.y + halfSize);
+                ctx!.closePath();
+                break;
+              case "diamond":
+                ctx!.moveTo(p.x, p.y - halfSize);
+                ctx!.lineTo(p.x + halfSize, p.y);
+                ctx!.lineTo(p.x, p.y + halfSize);
+                ctx!.lineTo(p.x - halfSize, p.y);
+                ctx!.closePath();
+                break;
+              case "square":
+                ctx!.rect(p.x - halfSize, p.y - halfSize, size, size);
+                break;
+            }
+            ctx!.fill();
+          }
+        }
+        ctx!.restore();
       }
 
       ctx!.globalAlpha = 1.0;
