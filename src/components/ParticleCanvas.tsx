@@ -1327,8 +1327,8 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
         targetInfluenceX = gyroX;
         targetInfluenceY = gyroY;
       } else if (mouse.active) {
-        targetInfluenceX = ((mouse.x - W / 2) / (W / 2)) * 0.08;
-        targetInfluenceY = ((mouse.y - H / 2) / (H / 2)) * 0.06;
+        targetInfluenceX = ((mouse.x - W / 2) / (W / 2)) * 0.12;
+        targetInfluenceY = ((mouse.y - H / 2) / (H / 2)) * 0.09;
       }
       mouseInfluenceX += (targetInfluenceX - mouseInfluenceX) * 0.05;
       mouseInfluenceY += (targetInfluenceY - mouseInfluenceY) * 0.05;
