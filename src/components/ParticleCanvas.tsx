@@ -1185,7 +1185,14 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
       }) as [string, string, string, string];
       const stiffnessMultiplier = settingsRef.current.springStiffness / 0.03;
       const dampingMultiplier = settingsRef.current.damping / 0.90;
-      const sizeMultiplier = settingsRef.current.particleSize / 3.0;
+
+      // Regular interval breathing/pulse effect (3-second period)
+      const pulsePeriod = 3000;
+      const pulseTime = (Date.now() % pulsePeriod) / pulsePeriod;
+      const pulseScale = 1.0 + Math.sin(pulseTime * Math.PI * 2) * 0.15;
+      const pulseOpacity = 1.0 + Math.sin(pulseTime * Math.PI * 2) * 0.10;
+
+      const sizeMultiplier = (settingsRef.current.particleSize / 3.0) * pulseScale;
 
       // ─── Sprite Cache Sync ────────────────────────────────────────────────
       let colorsChanged = false;
@@ -1468,30 +1475,14 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
         }
       }
 
-      // ─── Render circular and vector particles with hover highlight ────────
-      const hoveredParticles: { p: ParticleData; size: number; colorHex: string }[] = [];
-      const hoverRadius = settingsRef.current.interactionRadius;
-
       // ─── Render circular particles (spheres sprites) ──────────────────────
       for (let i = 0; i < currentCount; i++) {
         const p = particles[i];
         if (p.shape !== "circle") continue;
 
-        // Proximity check for hover highlight
-        const dx = p.x - mouse.x;
-        const dy = p.y - mouse.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        const isHovered = mouse.active && dist < hoverRadius && settingsRef.current.interactionMode !== "disabled";
-
+        ctx!.globalAlpha = Math.max(0.1, Math.min(1.0, p.opacity * settingsRef.current.particleOpacity * pulseOpacity));
         const size = p.size * p.scaleFactor * sizeMultiplier;
         const colorHex = currentColors[p.colorIndex];
-
-        if (isHovered) {
-          hoveredParticles.push({ p, size: size * 1.5, colorHex });
-          continue; // Draw in post-processing glow pass
-        }
-
-        ctx!.globalAlpha = p.opacity * settingsRef.current.particleOpacity;
         const sprite = sprites[colorHex];
         if (sprite) {
           ctx!.drawImage(
@@ -1505,7 +1496,7 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
       }
 
       // ─── Render vector particles (triangle, diamond, square) ──────────────
-      ctx!.globalAlpha = 0.68 * settingsRef.current.particleOpacity;
+      ctx!.globalAlpha = Math.max(0.1, Math.min(1.0, 0.68 * settingsRef.current.particleOpacity * pulseOpacity));
 
       for (let c = 0; c < 4; c++) {
         const colorHex = currentColors[c];
@@ -1520,20 +1511,9 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
             const p = particles[i];
             if (p.colorIndex !== c || p.shape !== shape) continue;
 
-            // Proximity check for hover highlight
-            const dx = p.x - mouse.x;
-            const dy = p.y - mouse.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            const isHovered = mouse.active && dist < hoverRadius && settingsRef.current.interactionMode !== "disabled";
-
             const size = p.size * p.scaleFactor * sizeMultiplier;
-
-            if (isHovered) {
-              hoveredParticles.push({ p, size: size * 1.5, colorHex });
-              continue; // Draw in post-processing glow pass
-            }
-
             const halfSize = size / 2;
+
             switch (shape) {
               case "triangle":
                 ctx!.moveTo(p.x, p.y - halfSize);
@@ -1556,55 +1536,6 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
 
           ctx!.fill();
         });
-      }
-
-      // ─── Render Hovered Particles Pass (1.5x size + Glow) ──────────────────
-      if (hoveredParticles.length > 0) {
-        ctx!.save();
-        for (const item of hoveredParticles) {
-          const { p, size, colorHex } = item;
-
-          ctx!.shadowColor = colorHex;
-          ctx!.shadowBlur = 15;
-          ctx!.globalAlpha = Math.min(1.0, p.opacity * settingsRef.current.particleOpacity * 1.3);
-
-          if (p.shape === "circle") {
-            const sprite = sprites[colorHex];
-            if (sprite) {
-              ctx!.drawImage(
-                sprite,
-                p.x - size / 2,
-                p.y - size / 2,
-                size,
-                size
-              );
-            }
-          } else {
-            ctx!.fillStyle = colorHex;
-            ctx!.beginPath();
-            const halfSize = size / 2;
-            switch (p.shape) {
-              case "triangle":
-                ctx!.moveTo(p.x, p.y - halfSize);
-                ctx!.lineTo(p.x - halfSize, p.y + halfSize);
-                ctx!.lineTo(p.x + halfSize, p.y + halfSize);
-                ctx!.closePath();
-                break;
-              case "diamond":
-                ctx!.moveTo(p.x, p.y - halfSize);
-                ctx!.lineTo(p.x + halfSize, p.y);
-                ctx!.lineTo(p.x, p.y + halfSize);
-                ctx!.lineTo(p.x - halfSize, p.y);
-                ctx!.closePath();
-                break;
-              case "square":
-                ctx!.rect(p.x - halfSize, p.y - halfSize, size, size);
-                break;
-            }
-            ctx!.fill();
-          }
-        }
-        ctx!.restore();
       }
 
       ctx!.globalAlpha = 1.0;
