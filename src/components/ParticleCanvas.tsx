@@ -1171,9 +1171,9 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
       const currentColors = settingsRef.current.colors.map((c) => {
         const lower = c.trim().toLowerCase();
         if (theme === "white") {
-          // If light theme, convert complete white to black
+          // If light theme, convert complete white to premium red (#ef4444)
           if (lower === "#ffffff" || lower === "#fff" || lower === "rgb(255,255,255)" || lower === "white") {
-            return "#000000";
+            return "#ef4444";
           }
         } else if (theme === "black") {
           // If dark theme, convert complete black to white

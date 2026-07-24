@@ -876,3 +876,114 @@ html.scroll-snap .section {
   }
 }
 
+/* ============================================================
+   White Theme (Light Mode) Styling Overrides
+   ============================================================ */
+:root.theme-white .site-navbar {
+  background: rgba(245, 245, 247, 0.7);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.06);
+}
+
+:root.theme-white .nav-logo-text {
+  background: linear-gradient(135deg, #0d9488, #0f172a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+:root.theme-white .nav-menu-svg {
+  color: rgba(15, 23, 42, 0.6);
+}
+
+:root.theme-white .nav-logo:hover .nav-menu-svg {
+  color: #0f172a;
+}
+
+:root.theme-white .nav-close-btn {
+  color: rgba(15, 23, 42, 0.5);
+}
+
+:root.theme-white .nav-close-btn:hover {
+  color: #0f172a;
+  background: rgba(15, 23, 42, 0.06);
+}
+
+:root.theme-white .sidebar-divider {
+  color: rgba(15, 23, 42, 0.4);
+}
+
+:root.theme-white .sidebar-cursor-list::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.03);
+}
+
+:root.theme-white .sidebar-cursor-list::-webkit-scrollbar-thumb {
+  background: rgba(13, 148, 136, 0.35);
+}
+
+:root.theme-white .sidebar-cursor-item {
+  color: rgba(15, 23, 42, 0.7);
+}
+
+:root.theme-white .sidebar-cursor-item:hover {
+  background: rgba(15, 23, 42, 0.04);
+  color: #0f172a;
+}
+
+:root.theme-white .sidebar-cursor-item.active {
+  background: rgba(13, 148, 136, 0.1);
+  border: 1px solid rgba(13, 148, 136, 0.2);
+  color: #0d9488;
+}
+
+:root.theme-white .nav-links {
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+:root.theme-white .nav-link,
+:root.theme-white .nav-link-btn {
+  color: rgba(15, 23, 42, 0.7);
+}
+
+:root.theme-white .nav-link:hover,
+:root.theme-white .nav-link-btn:hover {
+  color: #0f172a;
+  background: rgba(15, 23, 42, 0.04);
+}
+
+/* Page Headings & Subtexts overrides in light theme */
+:root.theme-white .section h1 {
+  background: linear-gradient(135deg, #0f172a 30%, #0d9488);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: none;
+}
+
+:root.theme-white .section p {
+  color: rgba(15, 23, 42, 0.75);
+}
+
+/* Right-side Index Scroll Dots overrides in light theme */
+:root.theme-white .scroll-dot {
+  background: rgba(15, 23, 42, 0.25);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+:root.theme-white .scroll-dot:hover {
+  background: var(--accent-color);
+}
+
+:root.theme-white .scroll-dot.active {
+  background: var(--accent-color);
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.3);
+}
+
+@media (max-width: 768px) {
+  :root.theme-white .site-navbar {
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  }
+  
+  :root.theme-white .site-navbar.sidebar-expanded .nav-links {
+    border-top: 1px solid rgba(15, 23, 42, 0.06);
+  }
+}
+
