@@ -555,7 +555,7 @@ html.scroll-snap .section {
 }
 
 .site-navbar.sidebar-expanded .nav-container {
-  align-items: flex-start;
+  align-items: stretch;
   padding: 20px;
 }
 
@@ -566,11 +566,14 @@ html.scroll-snap .section {
   width: 100%;
   padding-bottom: 12px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  flex-shrink: 0;
 }
 
 .sidebar-expanded .nav-logo-group {
   justify-content: space-between;
   padding: 0 4px 12px;
+  align-self: stretch;
+  width: 100%;
 }
 
 .nav-logo {
@@ -644,26 +647,33 @@ html.scroll-snap .section {
 }
 
 .sidebar-cursor-list {
-  max-height: 250px;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 4px;
   padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(13, 148, 136, 0.75) rgba(255, 255, 255, 0.08);
 }
 
 .sidebar-cursor-list::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
 }
 
 .sidebar-cursor-list::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
 }
 
 .sidebar-cursor-list::-webkit-scrollbar-thumb {
-  background: rgba(13, 148, 136, 0.6);
-  border-radius: 2px;
+  background: rgba(13, 148, 136, 0.75);
+  border-radius: 3px;
+}
+
+.sidebar-cursor-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(13, 148, 136, 0.95);
 }
 
 .sidebar-cursor-item {
@@ -712,6 +722,7 @@ html.scroll-snap .section {
   width: 100%;
   padding-top: 12px;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
+  flex-shrink: 0;
 }
 
 .sidebar-expanded .nav-links {
