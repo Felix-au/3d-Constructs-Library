@@ -520,6 +520,13 @@ html.scroll-snap .section {
 /* ============================================================
    Left Sidebar Navigation Styling
    ============================================================ */
+.site-navbar,
+.site-navbar *,
+.site-navbar *::before,
+.site-navbar *::after {
+  box-sizing: border-box;
+}
+
 .site-navbar {
   position: fixed;
   z-index: 1000;
