@@ -1185,14 +1185,7 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
       }) as [string, string, string, string];
       const stiffnessMultiplier = settingsRef.current.springStiffness / 0.03;
       const dampingMultiplier = settingsRef.current.damping / 0.90;
-
-      // Regular interval breathing/pulse effect (3-second period)
-      const pulsePeriod = 3000;
-      const pulseTime = (Date.now() % pulsePeriod) / pulsePeriod;
-      const pulseScale = 1.0 + Math.sin(pulseTime * Math.PI * 2) * 0.15;
-      const pulseOpacity = 1.0 + Math.sin(pulseTime * Math.PI * 2) * 0.10;
-
-      const sizeMultiplier = (settingsRef.current.particleSize / 3.0) * pulseScale;
+      const sizeMultiplier = settingsRef.current.particleSize / 3.0;
 
       // ─── Sprite Cache Sync ────────────────────────────────────────────────
       let colorsChanged = false;
@@ -1480,7 +1473,7 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
         const p = particles[i];
         if (p.shape !== "circle") continue;
 
-        ctx!.globalAlpha = Math.max(0.1, Math.min(1.0, p.opacity * settingsRef.current.particleOpacity * pulseOpacity));
+        ctx!.globalAlpha = p.opacity * settingsRef.current.particleOpacity;
         const size = p.size * p.scaleFactor * sizeMultiplier;
         const colorHex = currentColors[p.colorIndex];
         const sprite = sprites[colorHex];
@@ -1496,7 +1489,7 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
       }
 
       // ─── Render vector particles (triangle, diamond, square) ──────────────
-      ctx!.globalAlpha = Math.max(0.1, Math.min(1.0, 0.68 * settingsRef.current.particleOpacity * pulseOpacity));
+      ctx!.globalAlpha = 0.68 * settingsRef.current.particleOpacity;
 
       for (let c = 0; c < 4; c++) {
         const colorHex = currentColors[c];
