@@ -102,8 +102,13 @@ export default function App() {
       />
 
       {/* Empty snap target sections (keeps scroll snap functionality and enables fall-through clicks) */}
-      {Array.from({ length: 11 }).map((_, index) => (
-        <section key={index} className="section" style={{ pointerEvents: "none" }} />
+      {shapesMetadata.map((shapeName, index) => (
+        <section
+          key={index}
+          id={shapeName.toLowerCase().replace(/ /g, "-")}
+          className="section"
+          style={{ pointerEvents: "none" }}
+        />
       ))}
     </div>
   );
