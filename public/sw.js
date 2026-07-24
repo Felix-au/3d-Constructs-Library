@@ -35,33 +35,20 @@ self.addEventListener("fetch", (e) => {
   }
 
   e.respondWith(
-    caches.match(e.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        // Dynamic shell update in background
-        fetch(e.request)
-          .then((networkResponse) => {
-            if (networkResponse.status === 200) {
-              caches.open(CACHE_NAME).then((cache) => cache.put(e.request, networkResponse));
-            }
-          })
-          .catch(() => {});
-        return cachedResponse;
-      }
-
-      return fetch(e.request)
-        .then((networkResponse) => {
-          if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== "basic") {
-            return networkResponse;
-          }
+    fetch(e.request)
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(e.request, responseToCache);
           });
-          return networkResponse;
-        })
-        .catch(() => {
-          return caches.match("/");
+        }
+        return networkResponse;
+      })
+      .catch(() => {
+        return caches.match(e.request).then((cachedResponse) => {
+          return cachedResponse || caches.match("/");
         });
-    })
+      })
   );
 });
