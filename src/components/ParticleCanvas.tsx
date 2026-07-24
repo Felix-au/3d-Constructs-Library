@@ -549,7 +549,7 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
     }
 
     // Helper to sort 5 vertices circularly using edge graph cycle (specifically for icosahedron neighbor sets)
-    function sortCircular(neighbors: number[], currentId: number, icoEdges: number[][]): number[] {
+    function sortCircular(neighbors: number[], icoEdges: number[][]): number[] {
       const sorted: number[] = [neighbors[0]];
       let current = neighbors[0];
       while (sorted.length < 5) {
@@ -838,7 +838,7 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
           neighbors.push(j);
         }
       }
-      neighborSets.push(sortCircular(neighbors, i, icoEdges));
+      neighborSets.push(sortCircular(neighbors, icoEdges));
     }
 
     const ssdFaces = neighborSets;
