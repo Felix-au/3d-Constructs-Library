@@ -952,7 +952,7 @@ html.scroll-snap .section {
 
 /* Page Headings & Subtexts overrides in light theme */
 :root.theme-white .section h1 {
-  background: linear-gradient(135deg, #0f172a 30%, #0d9488);
+  background: linear-gradient(135deg, #0f172a 30%, #ef4444);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: none;
