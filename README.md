@@ -26,6 +26,7 @@
 - [Features](#features)
 - [Architecture](#architecture)
 - [Pipeline Flow and How It Works](#pipeline-flow-and-how-it-works)
+- [Developer Integration Library](#developer-integration-library)
 - [Application Walkthrough](#application-walkthrough)
 - [Visual UI Guide](#visual-ui-guide)
   - [Left Collapsible Sidebar](#left-collapsible-sidebar)
@@ -133,16 +134,16 @@ graph TD
 ┌────────────────────────────────────────────────────────────────────────┐
 │                        3D Constructs Application                       │
 │                                                                        │
-│  ┌───────────────────────┐            ┌─────────────────────────────┐  │
-│  │   UI Overlay Layer    │            │        Data Repository      │  │
-│  │  (React 19 & TypeScript)│            │                             │  │
-│  │  ┌─────────┐ ┌────────┐│            │   ┌─────────────────────┐   │  │
-│  │  │ Sidebar │ │Settings││            │   │   particles.json    │   │  │
-│  │  │ Navbar  │ │ Panel  ││            │   │ (18 shape matrices) │   │  │
-│  │  └────┬────┘ └───┬────┘│            │   └──────────┬──────────┘   │  │
-│  └───────┼──────────┼─────┘            └──────────────┼──────────────┘  │
-│          │          │                                 │                 │
-│          ▼          ▼                                 ▼                 │
+│  ┌────────────────────────┐            ┌─────────────────────────────┐ │
+│  │   UI Overlay Layer     │            │        Data Repository      │ │
+│  │ (React 19 & TypeScript)│            │                             │ │
+│  │  ┌─────────┐ ┌────────┐│            │   ┌─────────────────────┐   │ │
+│  │  │ Sidebar │ │Settings││            │   │   particles.json    │   │ │
+│  │  │ Navbar  │ │ Panel  ││            │   │ (18 shape matrices) │   │ │
+│  │  └────┬────┘ └───┬────┘│            │   └──────────┬──────────┘   │ │
+│  └───────┼──────────┼─────┘            └──────────────┼──────────────┘ │
+│          │          │                                 │                │
+│          ▼          ▼                                 ▼                │
 │  ┌───────┴──────────┴─────────────────────────────────┴─────────────┐  │
 │  │                         Canvas Physics Engine                    │  │
 │  │                                                                  │  │
@@ -228,6 +229,245 @@ Render frame buffer onto main HTML5 Canvas context
 5.  **Force Fields**: Cursor coordinates alter particle velocities dynamically. Ripples emit outward waves, repellers push particles away, attractors drag particles toward the mouse, and swarms pull particles behind the cursor.
 6.  **Sprite Caching**: To maximize performance, particles are pre-drawn onto a hidden offscreen canvas for each color, caching them as sprites. The main canvas draws these cached sprites, bypassing expensive pixel-rendering operations.
 
+## Developer Integration Library
+
+3D Constructs is designed not only as an interactive visual showcase, but also as a reusable library. Developers can extract the raw coordinates database, mount the high-performance physics canvas component in their own React/Vite/TypeScript projects, or copy the generative mathematical algorithms to dynamically construct complex polyhedrons.
+
+### 1. Extracting and Reusing Raw Coordinate Maps (`particles.json`)
+
+The raw coordinates for all 18 structures are stored in the compiled database [`particles.json`](file:///c:/Users/Felix/Desktop/experiment%20-%20Copy/src/data/particles.json). 
+
+#### Database Format
+The root of the JSON file is a dictionary mapping shape names (camelCase) to arrays of exactly 7,000 coordinate objects:
+```json
+{
+  "brain": [
+    { "x": 0.0512, "y": -0.1245, "z": 0.3214, "colorIndex": 0, "scaleFactor": 1.0 },
+    ...
+  ],
+  "lightbulb": [ ... ]
+}
+```
+
+Each particle node contains:
+*   `x`, `y`, `z`: Floating-point coordinates normalized in 3D space (ranging roughly from `-1.0` to `1.0`).
+*   `colorIndex`: An integer `0`, `1`, `2`, or `3` mapping the particle to one of the four sequential color bands.
+*   `scaleFactor`: A scalar indicating depth-relative size mapping.
+
+#### Three.js Integration Example
+To load these structures into a Three.js buffer geometry:
+```javascript
+import rawParticles from './path/to/particles.json';
+
+function createParticleSystem(shapeKey) {
+  const points = rawParticles[shapeKey]; // e.g., 'brain'
+  const geometry = new THREE.BufferGeometry();
+  const positions = new Float32Array(points.length * 3);
+  const colors = new Float32Array(points.length * 3);
+  
+  const palette = [
+    new THREE.Color('#ffb829'), // Color 0
+    new THREE.Color('#00ff00'), // Color 1
+    new THREE.Color('#0ffff0'), // Color 2
+    new THREE.Color('#ffffff')  // Color 3
+  ];
+
+  points.forEach((pt, i) => {
+    positions[i * 3]     = pt.x * 5.0; // Scale multiplier
+    positions[i * 3 + 1] = pt.y * 5.0;
+    positions[i * 3 + 2] = pt.z * 5.0;
+    
+    const color = palette[pt.colorIndex];
+    colors[i * 3]     = color.r;
+    colors[i * 3 + 1] = color.g;
+    colors[i * 3 + 2] = color.b;
+  });
+
+  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  
+  const material = new THREE.PointsMaterial({
+    size: 0.1,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.8
+  });
+  
+  return new THREE.Points(geometry, material);
+}
+```
+
+---
+
+### 2. Integrating the `ParticleCanvas` React Component
+
+To drop the interactive particle physics engine directly into your own React / Vite / TypeScript applications:
+
+#### Step A: Copy Component Code
+Copy the following files from this repository into your project's component folders:
+1.  [`src/components/ParticleCanvas.tsx`](file:///c:/Users/Felix/Desktop/experiment%20-%20Copy/src/components/ParticleCanvas.tsx) (Physics engine, canvas drawer, event listeners).
+2.  [`src/types.ts`](file:///c:/Users/Felix/Desktop/experiment%20-%20Copy/src/types.ts) (Configuration type structures and default presets).
+3.  [`src/data/particles.json`](file:///c:/Users/Felix/Desktop/experiment%20-%20Copy/src/data/particles.json) (Pre-compiled coordinate lists).
+
+#### Step B: Install Core Peer Dependencies
+Make sure you have React 18+ and TypeScript set up:
+```bash
+npm install react react-dom
+npm install -D @types/react @types/react-dom typescript
+```
+
+#### Step C: Add Canvas Global Styles
+Add these rules to your stylesheet (e.g., `index.css`) to ensure the canvas is positioned behind your content and handles transitions properly:
+```css
+.canvas-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+}
+
+#particle-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+```
+
+#### Step D: Mount the Component
+You can now import and mount `ParticleCanvas` anywhere in your React component tree, passing in state configuration settings:
+```tsx
+import React, { useState } from "react";
+import ParticleCanvas from "./components/ParticleCanvas";
+import { AppSettings, DEFAULT_SETTINGS } from "./types";
+
+export default function App() {
+  const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
+
+  return (
+    <div style={{ position: "relative", minHeight: "100vh", color: "#fff" }}>
+      {/* Background visualizer */}
+      <div className="canvas-container">
+        <ParticleCanvas settings={settings} />
+      </div>
+
+      {/* Foreground Interactive Layout */}
+      <main style={{ position: "relative", zIndex: 1, padding: "2rem" }}>
+        <h1>Interactive Space</h1>
+        <button onClick={() => setSettings(s => ({ ...s, theme: s.theme === "black" ? "white" : "black" }))}>
+          Toggle Theme
+        </button>
+      </main>
+    </div>
+  );
+}
+```
+
+---
+
+### 3. Reusing the Generative Polyhedron Mathematics
+
+If you want to generate customized 3D particle shapes programmatically rather than using pre-compiled JSON files, you can reuse the mathematical algorithms defined in [`ParticleCanvas.tsx`](file:///c:/Users/Felix/Desktop/experiment%20-%20Copy/src/components/ParticleCanvas.tsx):
+
+#### Uniform Triangle Sampling (`sampleTriangle`)
+Samples coordinates randomly on a 3D triangle plane using barycentric weights. Essential for generating clean polygon faces:
+```typescript
+function sampleTriangle(
+  a: { x: number; y: number; z: number },
+  b: { x: number; y: number; z: number },
+  c: { x: number; y: number; z: number }
+): { x: number; y: number; z: number } {
+  let r1 = Math.random();
+  let r2 = Math.random();
+  if (r1 + r2 > 1) {
+    r1 = 1 - r1;
+    r2 = 1 - r2;
+  }
+  const r3 = 1 - r1 - r2;
+  return {
+    x: r1 * a.x + r2 * b.x + r3 * c.x,
+    y: r1 * a.y + r2 * b.y + r3 * c.y,
+    z: r1 * a.z + r2 * b.z + r3 * c.z,
+  };
+}
+```
+
+#### Circular Coordinate Sorting (`sortCircular`)
+Sorts coplanar 3D polygon vertex sets in exact circular cycle order (to avoid wireframe cross-over/intersecting artifacts):
+```typescript
+function sortCircular(neighbors: number[], icoEdges: number[][]): number[] {
+  const sorted: number[] = [neighbors[0]];
+  let current = neighbors[0];
+  while (sorted.length < 5) {
+    const next = neighbors.find(n =>
+      !sorted.includes(n) &&
+      icoEdges.some(e => (e[0] === current && e[1] === n) || (e[0] === n && e[1] === current))
+    );
+    if (next !== undefined) {
+      sorted.push(next);
+      current = next;
+    } else {
+      break;
+    }
+  }
+  return sorted;
+}
+```
+
+#### Uniform Edge / Face Splitter (`generatePolyhedron`)
+This algorithm takes a list of 3D vertices, edge indexes, and face indexes, and generates a structured array of 7,000 points split between edges and faces, grouped into 4 distinct color bands:
+```typescript
+function generatePolyhedron(
+  vertices: { x: number; y: number; z: number }[],
+  edges: number[][],
+  faces: number[][],
+  edgeRatio: number // e.g., 0.75 for 75% edges
+): { x: number; y: number; z: number; colorIndex: number }[] {
+  const points: { x: number; y: number; z: number; colorIndex: number }[] = [];
+  const targetTotal = 7000;
+  const edgePointsTarget = Math.round(targetTotal * edgeRatio);
+  const facePointsTarget = targetTotal - edgePointsTarget;
+
+  // 1. Generate Edge Points (distributed uniformly across all edges)
+  const pointsPerEdge = Math.floor(edgePointsTarget / edges.length);
+  edges.forEach((edge) => {
+    const v1 = vertices[edge[0]];
+    const v2 = vertices[edge[1]];
+    for (let i = 0; i < pointsPerEdge; i++) {
+      const t = Math.random();
+      points.push({
+        x: lerp(v1.x, v2.x, t),
+        y: lerp(v1.y, v2.y, t),
+        z: lerp(v1.z, v2.z, t),
+        colorIndex: 0 // Will assign groups sequentially later
+      });
+    }
+  });
+
+  // 2. Generate Face Points (distributed uniformly across all faces)
+  if (faces.length > 0) {
+    const pointsPerFace = Math.floor(facePointsTarget / faces.length);
+    faces.forEach((face) => {
+      // Triangulate face if it has more than 3 vertices
+      // and sample points uniformly using sampleTriangle
+      ...
+    });
+  }
+
+  // 3. Sequential Color Band Partitioning
+  // Sort points by Y-coordinate and partition into 4 groups of equal length
+  points.sort((a, b) => a.y - b.y);
+  const size = Math.floor(points.length / 4);
+  points.forEach((pt, idx) => {
+    pt.colorIndex = Math.min(Math.floor(idx / size), 3);
+  });
+
+  return points;
+}
+```
+
 ---
 
 ## Application Walkthrough
@@ -265,7 +505,7 @@ The interface is structured to prioritize high-fidelity visuals, responsiveness,
 │                                                      • │
 │                                                      • │
 │                                                        │
-│[⚙️ Settings]                                           │
+│[⚙️ Settings]                                          │
 └────────────────────────────────────────────────────────┘
 ```
 
