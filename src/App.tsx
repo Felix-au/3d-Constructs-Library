@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import ParticleCanvas from "./components/ParticleCanvas";
 import SettingsPanel from "./components/SettingsPanel";
 import Navbar from "./components/Navbar";
+import CustomCursor from "./components/CustomCursor";
 import { type AppSettings, DEFAULT_SETTINGS } from "./types";
 
 const shapesMetadata = [
@@ -158,6 +159,9 @@ export default function App() {
 
   return (
     <div style={{ minHeight: "1800vh", position: "relative" }}>
+      {/* Premium Custom Cursor */}
+      <CustomCursor />
+
       {/* Background Interactive Canvas */}
       <ParticleCanvas settings={settings} />
 

@@ -1005,3 +1005,235 @@ html.scroll-snap .section {
   }
 }
 
+/* ============================================================
+   Custom Cursor Layout & Animations
+   ============================================================ */
+@media (hover: hover) and (pointer: fine) {
+  body,
+  a,
+  button,
+  select,
+  input[type="range"],
+  .scroll-dot,
+  .color-circle,
+  .color-picker-wrapper,
+  .sidebar-cursor-item {
+    cursor: none !important;
+  }
+}
+
+/* Ensure native cursor inside inputs */
+input[type="text"],
+input[type="number"],
+input[type="email"],
+textarea {
+  cursor: text !important;
+}
+
+.custom-cursor-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 99999;
+  pointer-events: none;
+  mix-blend-mode: normal;
+}
+
+/* Hide on mobile/touch screens */
+@media (hover: none) or (pointer: coarse) {
+  .custom-cursor-wrapper {
+    display: none !important;
+  }
+}
+
+.custom-cursor-dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  margin-top: -3px;
+  margin-left: -3px;
+  background-color: var(--accent-color);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 100000;
+  transform: translate3d(-100px, -100px, 0);
+  transition: width 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+              height 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+              background-color 0.3s ease,
+              opacity 0.3s ease;
+}
+
+.custom-cursor-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 26px;
+  height: 26px;
+  margin-top: -13px;
+  margin-left: -13px;
+  border: 1px solid var(--cursor-pulse-color-low);
+  background-color: var(--cursor-pulse-bg-low);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99999;
+  transform: translate3d(-100px, -100px, 0);
+  box-shadow: 0 0 10px rgba(13, 148, 136, 0);
+  transition: width 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+              height 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+              margin-top 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+              margin-left 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+              background-color 0.3s ease,
+              border-color 0.3s ease,
+              box-shadow 0.3s ease,
+              opacity 0.3s ease;
+  animation: cursorPulse 3s infinite alternate ease-in-out;
+
+  /* Custom color properties for the breathing pulse keyframes */
+  --cursor-pulse-color-low: rgba(13, 148, 136, 0.35);
+  --cursor-pulse-color-high: rgba(13, 148, 136, 0.7);
+  --cursor-pulse-bg-low: rgba(13, 148, 136, 0.02);
+  --cursor-pulse-bg-high: rgba(13, 148, 136, 0.06);
+  --cursor-pulse-glow: rgba(13, 148, 136, 0.15);
+}
+
+/* Light theme cursor adjustment */
+:root.theme-white .custom-cursor-dot {
+  background-color: #ef4444;
+}
+
+:root.theme-white .custom-cursor-ring {
+  --cursor-pulse-color-low: rgba(239, 68, 68, 0.35);
+  --cursor-pulse-color-high: rgba(239, 68, 68, 0.7);
+  --cursor-pulse-bg-low: rgba(239, 68, 68, 0.02);
+  --cursor-pulse-bg-high: rgba(239, 68, 68, 0.06);
+  --cursor-pulse-glow: rgba(239, 68, 68, 0.15);
+}
+
+/* Cursor states */
+.custom-cursor-wrapper.hovered .custom-cursor-dot {
+  width: 0px;
+  height: 0px;
+  opacity: 0;
+}
+
+.custom-cursor-wrapper.hovered .custom-cursor-ring {
+  width: 48px;
+  height: 48px;
+  margin-top: -24px;
+  margin-left: -24px;
+  border-color: var(--accent-color);
+  background-color: rgba(13, 148, 136, 0.08);
+  box-shadow: 0 0 15px rgba(13, 148, 136, 0.25);
+}
+
+:root.theme-white .custom-cursor-wrapper.hovered .custom-cursor-ring {
+  border-color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.06);
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+}
+
+/* Click Squeeze state */
+.custom-cursor-wrapper.clicked .custom-cursor-ring {
+  width: 18px;
+  height: 18px;
+  margin-top: -9px;
+  margin-left: -9px;
+  background-color: rgba(13, 148, 136, 0.25);
+  border-color: var(--accent-color);
+}
+
+:root.theme-white .custom-cursor-wrapper.clicked .custom-cursor-ring {
+  background-color: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+}
+
+.custom-cursor-wrapper.clicked .custom-cursor-dot {
+  width: 4px;
+  height: 4px;
+  margin-top: -2px;
+  margin-left: -2px;
+  opacity: 1;
+}
+
+/* Click Ripple effect */
+.custom-cursor-ripple {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 20px;
+  height: 20px;
+  margin-top: -10px;
+  margin-left: -10px;
+  border: 1.5px solid var(--accent-color);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 99998;
+}
+
+:root.theme-white .custom-cursor-ripple {
+  border-color: #ef4444;
+}
+
+.custom-cursor-ripple.animate {
+  animation: cursorRipple 0.5s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+}
+
+.custom-cursor-wrapper.hovered .custom-cursor-ring,
+.custom-cursor-wrapper.clicked .custom-cursor-ring {
+  animation: none !important;
+}
+
+/* Pulse animation */
+@keyframes cursorPulse {
+  0% {
+    border-color: var(--cursor-pulse-color-low);
+    background-color: var(--cursor-pulse-bg-low);
+    box-shadow: 0 0 4px rgba(13, 148, 136, 0);
+  }
+  100% {
+    border-color: var(--cursor-pulse-color-high);
+    background-color: var(--cursor-pulse-bg-high);
+    box-shadow: 0 0 12px var(--cursor-pulse-glow);
+  }
+}
+
+/* Ripple animation */
+@keyframes cursorRipple {
+  0% {
+    width: 20px;
+    height: 20px;
+    margin-top: -10px;
+    margin-left: -10px;
+    opacity: 0.8;
+    transform: scale(0.5);
+  }
+  100% {
+    width: 80px;
+    height: 80px;
+    margin-top: -40px;
+    margin-left: -40px;
+    opacity: 0;
+    transform: scale(1.2);
+  }
+}
+
+/* Respect user's preferences */
+@media (prefers-reduced-motion: reduce) {
+  .custom-cursor-ring {
+    animation: none !important;
+    transition: none !important;
+  }
+  .custom-cursor-dot {
+    transition: none !important;
+  }
+  .custom-cursor-ripple {
+    animation: none !important;
+  }
+}
+
+
