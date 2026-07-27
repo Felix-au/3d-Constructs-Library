@@ -1,9 +1,9 @@
-const CACHE_NAME = "3d-constructs-v1";
+const CACHE_NAME = "3d-constructs-v3";
 const SHELL_ASSETS = [
   "/",
   "/index.html",
+  "/favicon.svg",
   "/logo.png",
-  "/social-banner.png",
   "/manifest.webmanifest"
 ];
 
