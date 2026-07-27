@@ -86,17 +86,19 @@ export default function SettingsPanel({
   if (!isOpen) return null;
 
   return (
-    <div className="settings-panel">
+    <div className="settings-panel" role="dialog" aria-modal="true" aria-label="Canvas Settings">
       {/* Header */}
       <div className="settings-header">
         <h2>Canvas Settings</h2>
       </div>
 
       {/* Tabs */}
-      <div className="settings-tabs">
+      <div className="settings-tabs" role="tablist" aria-label="Settings categories">
         {(["general", "physics", "mouse", "colors"] as TabType[]).map((tab) => (
           <button
             key={tab}
+            role="tab"
+            aria-selected={activeTab === tab}
             className={`tab-btn ${activeTab === tab ? "active" : ""}`}
             onClick={() => setActiveTab(tab)}
           >
@@ -112,8 +114,9 @@ export default function SettingsPanel({
           <>
             {/* Presets */}
             <div className="setting-row">
-              <label className="setting-label">Preset Mode</label>
+              <label htmlFor="preset-select" className="setting-label">Preset Mode</label>
               <select
+                id="preset-select"
                 className="control-select"
                 onChange={(e) => applyPreset(e.target.value)}
                 style={{ width: "100%" }}
@@ -130,11 +133,14 @@ export default function SettingsPanel({
 
             {/* Theme Toggle */}
             <div className="setting-row setting-row-horizontal">
-              <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                <span className="setting-label">Light Theme</span>
+              <div style={{ display: "flex", flexDirection: "column", gap: "2px", alignItems: "center", textAlign: "center" }}>
+                <span className="setting-label" id="light-theme-label">Light Theme</span>
                 <span className="setting-description">Toggle white/black background.</span>
               </div>
               <button
+                role="switch"
+                aria-checked={settings.theme === "white"}
+                aria-labelledby="light-theme-label"
                 className={`switch-btn ${settings.theme === "white" ? "active" : ""}`}
                 onClick={() => updateSetting("theme", settings.theme === "white" ? "black" : "white")}
               >
@@ -144,11 +150,14 @@ export default function SettingsPanel({
 
             {/* Scroll Snap Toggle */}
             <div className="setting-row setting-row-horizontal">
-              <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                <span className="setting-label">Scroll Snapping</span>
+              <div style={{ display: "flex", flexDirection: "column", gap: "2px", alignItems: "center", textAlign: "center" }}>
+                <span className="setting-label" id="scroll-snap-label">Scroll Snapping</span>
                 <span className="setting-description">Snap sections to viewport.</span>
               </div>
               <button
+                role="switch"
+                aria-checked={settings.scrollSnapEnabled}
+                aria-labelledby="scroll-snap-label"
                 className={`switch-btn ${settings.scrollSnapEnabled ? "active" : ""}`}
                 onClick={() => updateSetting("scrollSnapEnabled", !settings.scrollSnapEnabled)}
               >
@@ -158,11 +167,14 @@ export default function SettingsPanel({
 
             {/* Scroll Snap Dead Zone Toggle */}
             <div className="setting-row setting-row-horizontal">
-              <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                <span className="setting-label">Morph Stability Zone</span>
+              <div style={{ display: "flex", flexDirection: "column", gap: "2px", alignItems: "center", textAlign: "center" }}>
+                <span className="setting-label" id="dead-zone-label">Morph Stability Zone</span>
                 <span className="setting-description">Stays fully formed near snap points.</span>
               </div>
               <button
+                role="switch"
+                aria-checked={settings.deadZoneEnabled}
+                aria-labelledby="dead-zone-label"
                 className={`switch-btn ${settings.deadZoneEnabled ? "active" : ""}`}
                 onClick={() => updateSetting("deadZoneEnabled", !settings.deadZoneEnabled)}
               >
@@ -173,11 +185,12 @@ export default function SettingsPanel({
             {/* Scroll Snap Dead Zone Size */}
             {settings.deadZoneEnabled && (
               <div className="setting-row">
-                <div className="setting-label">
+                <label htmlFor="stability-range-slider" className="setting-label">
                   <span>Stability Range</span>
                   <span className="setting-value">{settings.deadZonePercentage}%</span>
-                </div>
+                </label>
                 <input
+                  id="stability-range-slider"
                   type="range"
                   min="0"
                   max="60"
@@ -188,8 +201,6 @@ export default function SettingsPanel({
                 />
               </div>
             )}
-
-
           </>
         )}
 
@@ -198,11 +209,12 @@ export default function SettingsPanel({
           <>
             {/* Particle Size */}
             <div className="setting-row">
-              <div className="setting-label">
+              <label htmlFor="particle-size-slider" className="setting-label">
                 <span>Base Particle Size</span>
                 <span className="setting-value">{settings.particleSize.toFixed(1)}px</span>
-              </div>
+              </label>
               <input
+                id="particle-size-slider"
                 type="range"
                 min="1.0"
                 max="6.0"
@@ -215,11 +227,12 @@ export default function SettingsPanel({
 
             {/* Particle Opacity */}
             <div className="setting-row">
-              <div className="setting-label">
+              <label htmlFor="particle-opacity-slider" className="setting-label">
                 <span>Particle Opacity</span>
                 <span className="setting-value">{settings.particleOpacity.toFixed(2)}</span>
-              </div>
+              </label>
               <input
+                id="particle-opacity-slider"
                 type="range"
                 min="0.10"
                 max="1.00"
@@ -232,11 +245,12 @@ export default function SettingsPanel({
 
             {/* Spring Stiffness */}
             <div className="setting-row">
-              <div className="setting-label">
+              <label htmlFor="spring-stiffness-slider" className="setting-label">
                 <span>Spring Stiffness</span>
                 <span className="setting-value">{settings.springStiffness.toFixed(3)}</span>
-              </div>
+              </label>
               <input
+                id="spring-stiffness-slider"
                 type="range"
                 min="0.005"
                 max="0.08"
@@ -249,11 +263,12 @@ export default function SettingsPanel({
 
             {/* Damping */}
             <div className="setting-row">
-              <div className="setting-label">
+              <label htmlFor="damping-slider" className="setting-label">
                 <span>Damping (Decay)</span>
                 <span className="setting-value">{settings.damping.toFixed(2)}</span>
-              </div>
+              </label>
               <input
+                id="damping-slider"
                 type="range"
                 min="0.75"
                 max="0.99"
@@ -266,11 +281,12 @@ export default function SettingsPanel({
 
             {/* Auto Rotate Speed */}
             <div className="setting-row">
-              <div className="setting-label">
+              <label htmlFor="rotate-speed-slider" className="setting-label">
                 <span>Auto-Rotation Speed</span>
                 <span className="setting-value">{settings.autoRotateSpeed.toFixed(1)}x</span>
-              </div>
+              </label>
               <input
+                id="rotate-speed-slider"
                 type="range"
                 min="0.0"
                 max="5.0"
@@ -288,8 +304,9 @@ export default function SettingsPanel({
           <>
             {/* Interaction Mode */}
             <div className="setting-row">
-              <label className="setting-label">Cursor Mode</label>
+              <label htmlFor="cursor-mode-select" className="setting-label">Cursor Mode</label>
               <select
+                id="cursor-mode-select"
                 className="control-select"
                 style={{ width: "100%" }}
                 value={settings.interactionMode}
@@ -306,11 +323,12 @@ export default function SettingsPanel({
             {/* Interaction Force */}
             {settings.interactionMode !== "disabled" && (
               <div className="setting-row">
-                <div className="setting-label">
+                <label htmlFor="interaction-force-slider" className="setting-label">
                   <span>Interaction Force</span>
                   <span className="setting-value">{settings.interactionForce.toFixed(1)}</span>
-                </div>
+                </label>
                 <input
+                  id="interaction-force-slider"
                   type="range"
                   min="0.5"
                   max="10.0"
@@ -325,11 +343,12 @@ export default function SettingsPanel({
             {/* Proximity Radius */}
             {settings.interactionMode !== "disabled" && (
               <div className="setting-row">
-                <div className="setting-label">
+                <label htmlFor="proximity-radius-slider" className="setting-label">
                   <span>Proximity Radius</span>
                   <span className="setting-value">{settings.interactionRadius}px</span>
-                </div>
+                </label>
                 <input
+                  id="proximity-radius-slider"
                   type="range"
                   min="30"
                   max="250"
@@ -343,11 +362,14 @@ export default function SettingsPanel({
 
             {/* Gyro Toggle */}
             <div className="setting-row setting-row-horizontal">
-              <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                <span className="setting-label">Gyroscope Interaction</span>
+              <div style={{ display: "flex", flexDirection: "column", gap: "2px", alignItems: "center", textAlign: "center" }}>
+                <span className="setting-label" id="gyro-label">Gyroscope Interaction</span>
                 <span className="setting-description">Interact via device rotation.</span>
               </div>
               <button
+                role="switch"
+                aria-checked={settings.gyroEnabled}
+                aria-labelledby="gyro-label"
                 className={`switch-btn ${settings.gyroEnabled ? "active" : ""}`}
                 onClick={() => updateSetting("gyroEnabled", !settings.gyroEnabled)}
               >
@@ -358,11 +380,12 @@ export default function SettingsPanel({
             {/* Gyro Sensitivity */}
             {settings.gyroEnabled && (
               <div className="setting-row">
-                <div className="setting-label">
+                <label htmlFor="gyro-sensitivity-slider" className="setting-label">
                   <span>Gyro Sensitivity</span>
                   <span className="setting-value">{settings.gyroSensitivity.toFixed(1)}x</span>
-                </div>
+                </label>
                 <input
+                  id="gyro-sensitivity-slider"
                   type="range"
                   min="0.1"
                   max="3.0"
@@ -380,7 +403,7 @@ export default function SettingsPanel({
         {activeTab === "colors" && (
           <>
             <div className="setting-row">
-              <label className="setting-label">Particle Palette</label>
+              <span className="setting-label">Particle Palette</span>
               <span className="setting-description" style={{ marginBottom: "8px" }}>
                 Click circles to pick colors. They align bottom-to-top in 3D.
               </span>
@@ -405,6 +428,7 @@ export default function SettingsPanel({
                       <input
                         type="color"
                         className="color-input"
+                        aria-label={`Particle Color Slot ${index + 1}`}
                         value={color}
                         onChange={(e) => handleColorChange(index, e.target.value)}
                       />

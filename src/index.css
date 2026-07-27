@@ -1,4 +1,21 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+/* Screen reader utility class */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Accessibility Focus Visible outline fallback */
+:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 3px;
+}
 
 :root {
   --bg-color: #000000;
@@ -106,7 +123,8 @@ html.scroll-snap .section {
   max-width: 800px;
 }
 
-.section h1 {
+.section h1,
+.section h2 {
   font-size: clamp(2.5rem, 5vw, 4.5rem);
   font-weight: 800;
   margin: 0 0 1.5rem 0;
@@ -246,12 +264,22 @@ html.scroll-snap .section {
   align-items: center;
 }
 
+.setting-row-horizontal .setting-label {
+  justify-content: center;
+  text-align: center;
+}
+
+.setting-row-horizontal .setting-description {
+  text-align: center;
+}
+
 .setting-label {
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--text-color);
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 
 .setting-value {
@@ -376,6 +404,8 @@ html.scroll-snap .section {
 
 .switch-btn {
   position: relative;
+  display: flex;
+  align-items: center;
   width: 48px;
   height: 26px;
   border-radius: 13px;
@@ -383,6 +413,9 @@ html.scroll-snap .section {
   border: 1px solid var(--input-border);
   cursor: pointer;
   transition: background-color 0.3s ease;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  padding: 0;
 }
 
 .switch-btn.active {
@@ -390,19 +423,17 @@ html.scroll-snap .section {
 }
 
 .switch-knob {
-  position: absolute;
-  top: 2px;
-  left: 2px;
   width: 20px;
   height: 20px;
   border-radius: 50%;
   background: #ffffff;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  transform: translateX(2px);
 }
 
 .switch-btn.active .switch-knob {
-  transform: translateX(22px);
+  transform: translateX(24px);
 }
 
 .settings-footer {
@@ -965,7 +996,8 @@ html.scroll-snap .section {
 }
 
 /* Page Headings & Subtexts overrides in light theme */
-:root.theme-white .section h1 {
+:root.theme-white .section h1,
+:root.theme-white .section h2 {
   background: linear-gradient(135deg, #0f172a 30%, #ef4444);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
