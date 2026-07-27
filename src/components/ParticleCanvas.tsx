@@ -1613,7 +1613,12 @@ export default function ParticleCanvas({ settings }: ParticleCanvasProps) {
 
   return (
     <div className="canvas-container">
-      <canvas ref={canvasRef} id="particle-canvas" />
+      <canvas
+        ref={canvasRef}
+        id="particle-canvas"
+        role="img"
+        aria-label="Interactive 3D particle physics visualization canvas"
+      />
     </div>
   );
 }

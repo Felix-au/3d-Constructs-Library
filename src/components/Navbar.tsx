@@ -65,11 +65,13 @@ export default function Navbar({ activeSection, onNavigate, onOpenSettings, colo
         {isExpanded && (
           <div className="sidebar-middle-section">
             <div className="sidebar-divider">3D Library</div>
-            <div className="sidebar-cursor-list">
+            <div className="sidebar-cursor-list" role="menu">
               {shapesMetadata.map((name, index) => (
                 <button
                   key={index}
                   className={`sidebar-cursor-item ${activeSection === index ? "active" : ""}`}
+                  aria-current={activeSection === index ? "true" : undefined}
+                  aria-label={`Navigate to ${name}`}
                   onClick={() => {
                     onNavigate(index);
                     setIsExpanded(false);
@@ -78,6 +80,7 @@ export default function Navbar({ activeSection, onNavigate, onOpenSettings, colo
                   <span 
                     className="cursor-item-dot" 
                     style={{ backgroundColor: colors[index % 4] }} 
+                    aria-hidden="true"
                   />
                   <span className="cursor-item-name">{name}</span>
                 </button>

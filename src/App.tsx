@@ -159,6 +159,9 @@ export default function App() {
 
   return (
     <div style={{ minHeight: "1800vh", position: "relative" }}>
+      {/* Visually hidden H1 for Document Heading Structure */}
+      <h1 className="sr-only">3D Constructs - Interactive Particle Visualizer</h1>
+
       {/* Premium Custom Cursor */}
       <CustomCursor />
 
@@ -174,12 +177,22 @@ export default function App() {
       />
 
       {/* Scroll Indicators Sidebar */}
-      <div className="scroll-indicator-bar">
+      <div className="scroll-indicator-bar" role="navigation" aria-label="Section Quick Jump">
         {shapesMetadata.map((shapeName, index) => (
           <div
             key={index}
+            role="button"
+            tabIndex={0}
+            aria-label={`Scroll to ${shapeName}`}
+            aria-current={activeSection === index ? "true" : undefined}
             className={`scroll-dot ${activeSection === index ? "active" : ""}`}
             onClick={() => scrollToSection(index)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                scrollToSection(index);
+              }
+            }}
             title={`Scroll to ${shapeName}`}
           />
         ))}
@@ -205,7 +218,11 @@ export default function App() {
             className={`section-content ${activeSection === index ? "active" : ""}`}
             style={{ pointerEvents: "auto" }}
           >
-            <h1>{shapeName}</h1>
+            {activeSection === index ? (
+              <h1>{shapeName}</h1>
+            ) : (
+              <h2>{shapeName}</h2>
+            )}
             <p>{shapeDescriptions[index]}</p>
           </div>
         </section>

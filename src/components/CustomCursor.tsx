@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useRef, useState } from "react";
 
 // Adjustable Cursor Physics and Style Constants
@@ -176,6 +174,7 @@ export default function CustomCursor() {
   return (
     <div
       ref={wrapperRef}
+      aria-hidden="true"
       className={`custom-cursor-wrapper ${isHovered ? "hovered" : ""} ${
         isClicked ? "clicked" : ""
       }`}
